@@ -18,6 +18,9 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { FirebaseStoreProvider } from '../providers/firebase-store/firebase-store';
 
 import { Firebase } from '@ionic-native/firebase';
+import { UtilityProvider } from '../providers/utility/utility';
+
+import { UniqueDeviceID } from '@ionic-native/unique-device-id';
 
 @NgModule({
   declarations: [
@@ -49,7 +52,9 @@ import { Firebase } from '@ionic-native/firebase';
     SplashScreen,
     Firebase,
     FirebaseStoreProvider,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    UniqueDeviceID,
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    UtilityProvider
   ]
 })
 export class AppModule {}

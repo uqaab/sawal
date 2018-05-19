@@ -1,18 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { AlertController } from 'ionic-angular';
 
 import * as firebase from 'firebase';
-/*
-  Generated class for the FirebaseStoreProvider provider.
+import { UniqueDeviceID } from '@ionic-native/unique-device-id';
 
-  See https://angular.io/guide/dependency-injection for more info on providers
-  and Angular DI.
-*/
+
 @Injectable()
 export class FirebaseStoreProvider {
 
-  refs: object = {};
-  config = {
+  refs: any = {};
+  deviceId: string;
+  config: any = {
     apiKey: "AIzaSyBA1_7kjG2cYEyz2UAtHySoBtjR7a1Bm7E",
     authDomain: "sawal-app-e2ef9.firebaseapp.com",
     databaseURL: "https://sawal-app-e2ef9.firebaseio.com",
@@ -21,18 +20,53 @@ export class FirebaseStoreProvider {
     messagingSenderId: "102631740478"
   };
 
-  constructor(public http: HttpClient) {
+  constructor(public http: HttpClient, private uniqueDeviceID: UniqueDeviceID, public alertCtrl: AlertController) {
     console.log('FirebaseStoreProvider');
   }
 
   // main initialization logic - one-time only
   init () {
+    const self = this;
 
-    // init firebase SDK
-    firebase.initializeApp(this.config);
+    // get phone's device id to consider it as unique username
+    this.getDeviceId()
+      .then((uuid: any) => {
+        console.log('uuid', uuid);
+        self.deviceId = uuid;
 
-    // build the required References
-    this.sefRefs();
+        let alert = this.alertCtrl.create({
+          title: 'Device ID',
+          subTitle: 'Your device id is : ' + uuid,
+          buttons: ['OK']
+        });
+
+        alert.present();
+
+        // init firebase SDK
+        firebase.initializeApp(self.config);
+
+        // build the required References
+        self.buildRefs();
+      })
+      .catch((error: any) => {
+        console.log('device-id - failed initializing app - could not read device-id', error);
+
+        // alert modal  - failed initializing app - could not read device-id
+      });
+  }
+
+  getDeviceIdSync() {
+    return this.deviceId;
+  }
+
+  // returns the device id once retrieved already
+  getDeviceId() {
+    return location.hostname === 'localhost' ? this.getTestDeviceId() : this.uniqueDeviceID.get();
+  }
+
+  // returns test device-id for development purpose
+  getTestDeviceId() {
+    return new Promise(resolve => resolve('test-device-id'));
   }
 
   // returns the references to be consumed across app
@@ -41,7 +75,7 @@ export class FirebaseStoreProvider {
   }
 
   // builds the references one-time only
-  sefRefs () {
+  buildRefs () {
     const appDb = firebase.database();
 
     this.refs.channelsCodeRef = appDb.ref('channels-codes');
