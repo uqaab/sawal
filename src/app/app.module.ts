@@ -18,10 +18,10 @@ import { AngularFireModule } from 'angularfire2';
 
 export const firebaseConfig = {
   apiKey: "AIzaSyAYHF7bTatSCWGoNjni_vWbivyUGoV6vK8",
-  authDomain: "aka-app-786.firebaseapp.com",
-  databaseURL: "https://aka-app-786.firebaseio.com",
-  projectId: "aka-app-786",
-  storageBucket: "aka-app-786.appspot.com",
+  authDomain: "ama-app-786.firebaseapp.com",
+  databaseURL: "https://ama-app-786.firebaseio.com",
+  projectId: "ama-app-786",
+  storageBucket: "ama-app-786.appspot.com",
   messagingSenderId: "613987934072"
 };
 
