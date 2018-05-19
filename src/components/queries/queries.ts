@@ -32,7 +32,7 @@ export class QueriesComponent {
         "approvedOn" : 123234234,
         "askedBy" : 123123123,
         "askedOn" : 12312312312,
-        "text" : "this is the first question",
+        "text" : "Nawafil bataeye kch Tak rat k lye.",
         "votes" : {
           "1312312" : 123123123,
           "1312313" : 312312312,
@@ -47,7 +47,7 @@ export class QueriesComponent {
         "approvedOn" : 123234234,
         "askedBy" : 123123123,
         "askedOn" : 12312312312,
-        "text" : "this is the second question",
+        "text" : "Wuzu k faraez kia hyn ?",
         "votes" : {
           "1312312" : true
         },

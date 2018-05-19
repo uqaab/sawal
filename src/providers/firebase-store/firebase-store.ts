@@ -26,6 +26,7 @@ interface IFirebaseConfig {
 export class FirebaseStoreProvider {
 
   refs: IRefs = {};
+  testDeviceId: 'test-device-id2';
   deviceId: string;
   deviceIdPromise: any;
   firebaseConfig: IFirebaseConfig = {
@@ -53,11 +54,11 @@ export class FirebaseStoreProvider {
         console.log('uuid', uuid);
         self.deviceId = uuid;
 
-        this.alertCtrl.create({
-          title: 'Device ID',
-          subTitle: 'Your device id is : ' + uuid,
-          buttons: ['OK']
-        }).present();
+        // this.alertCtrl.create({
+        //   title: 'Device ID',
+        //   subTitle: 'Your device id is : ' + uuid,
+        //   buttons: ['OK']
+        // }).present();
 
         // init firebase SDK
         firebase.initializeApp(self.firebaseConfig);
@@ -106,9 +107,31 @@ export class FirebaseStoreProvider {
 
       this.refs.usersRef.child(this.deviceId).set(profile, error => {
         if (error) {
+          console.log('registerUser:', error);
           reject('User registration failed.');
         }
         resolve(userName);
+      });
+    });
+  }
+
+  // registers the user against the unique device-id
+  getChannelCode(channelCode) {
+
+    return new Promise((resolve, reject) => {
+
+      this.refs.channelsCodeRef.child(channelCode).once('value', snapshot => {
+        const channelId = snapshot.val();
+
+        // vif valid code then we get the channelId
+        if (channelId) {
+          resolve(channelId);
+
+        } else {
+          reject('Invalid channel code - please get one from the channel admin.');
+        }
+      }, (error) => {
+        reject(error);
       });
     });
   }

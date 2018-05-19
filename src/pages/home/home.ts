@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { AlertController } from 'ionic-angular';
+
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
 import { ChannelPage } from '../channel/channel';
 
@@ -15,15 +17,15 @@ export class HomePage {
   fetching: false;
   registering: false;
   joining: false;
-  constructor(public navCtrl: NavController, private firebaseStore: FirebaseStoreProvider) {
+
+  constructor(public navCtrl: NavController, private firebaseStore: FirebaseStoreProvider, public alertCtrl: AlertController) {
     // console.log('channels', firebase.database().ref('channels/'));
+    this.connect();
+  }
 
+  connect() {
     const self = this;
-
-    // active loading
     this.fetching = true;
-
-    // check if user exists
     this.firebaseStore.getDeviceId()
       .then(uuid => {
 
@@ -31,7 +33,7 @@ export class HomePage {
           .then(userProfile => {
             self.fetching = false;
 
-            // if new user
+            // if new user.
             if (userProfile === null) {
               console.log('new user');
               // if device has been registered previously
@@ -39,6 +41,14 @@ export class HomePage {
               self.userName = userProfile.name;
               console.log('existing user', self.userName);
             }
+          })
+          .catch(error => {
+            this.alertCtrl.create({
+              title: 'Error',
+              subTitle: 'Could not connect. - Please connect to Internet and restart App.',
+              buttons: ['ok']
+            }).present();
+            connect();
           });
       });
   }
@@ -52,9 +62,21 @@ export class HomePage {
       .then(() => {
         self.registering = false;
         self.userName = this.newUserName;
+
+        this.alertCtrl.create({
+          title: 'Successful !',
+          subTitle: 'You have been registered successfully.',
+          buttons: ['Join Channel']
+        }).present();
       })
       .catch(error => {
         self.registering = false;
+
+        this.alertCtrl.create({
+          title: 'Error',
+          subTitle: error,
+          buttons: ['Try Again']
+        }).present();
       });
   }
 
@@ -75,6 +97,12 @@ export class HomePage {
       })
       .catch(error => {
         self.joining = false;
+
+        this.alertCtrl.create({
+          title: 'Error',
+          subTitle: error,
+          buttons: ['Try Again']
+        }).present();
       });
   }
 }

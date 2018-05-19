@@ -23,14 +23,18 @@
 
       <!-- if new user - register first -->
       <div *ngIf="!fetching && !userName" class="register-section">
-        <h4>Please enter name to proceed</h4>
         <ion-list>
           <ion-item>
-            <ion-input class="" max="12" min="3"  placeholder="Hello" [(ngModel)]="newUserName"></ion-input>
+            <ion-input class="" max="12" min="3"
+                       placeholder="Please enter your name"
+                       [attr.disabled]="registering"
+                       [(ngModel)]="newUserName"></ion-input>
           </ion-item>
-          <textarea name="" id="" cols="30" rows="10"></textarea>
         </ion-list>
-        <button ion-button full color="secondary" (click)="registerUser()">Register</button>
+        <button ion-button full color="secondary" (click)="registerUser()">
+          Register
+          <ion-spinner *ngIf="registering" name="dots"></ion-spinner>
+        </button>
       </div>
 
     </ion-col>
@@ -39,10 +43,16 @@
     <ion-col col-12 *ngIf="!fetching && userName" class="channel-section">
       <ion-list>
         <ion-item>
-          <ion-input class="" max="4" min="4"  placeholder="Enter Channel Code (4 Digits)" [(ngModel)]="channelCode"></ion-input>
+          <ion-input class="" max="4" min="4"
+                     placeholder="Enter Channel Code (4 Digits)"
+                     [attr.disabled]="joining"
+                     [(ngModel)]="channelCode"></ion-input>
         </ion-item>
       </ion-list>
-      <button ion-button full color="primary" (click)="joinChannel()">Join</button>
+      <button ion-button full color="primary" (click)="joinChannel()">
+        Join
+        <ion-spinner *ngIf="joining" name="dots"></ion-spinner>
+      </button>
     </ion-col>
 
   </ion-row>
