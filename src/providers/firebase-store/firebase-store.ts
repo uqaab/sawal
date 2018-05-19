@@ -74,7 +74,10 @@ export class FirebaseStoreProvider {
   }
 
   // registers the user against the unique device-id
-  submitQuestion(questionText) {
+  submitQuestion(questionText, channelId) {
+
+    // by default push the question to active channel
+    channelId = channelId || this.activeChannelId;
 
     return new Promise((resolve, reject) => {
       let question = {
@@ -88,11 +91,25 @@ export class FirebaseStoreProvider {
         votes: {}
       };
 
-      this.refs.questionsRef.child(this.deviceId).set(question, error => {
+      // add into questions namespace
+      const questionId: string = this.refs.questionsRef.push().key;
+      this.refs.questionsRef.child(questionId).set(question, error => {
         if (error) {
-          console.log('submitQuestion: error - ', error);
+          console.log('submitQuestion: questions ref: error - ', error);
           reject('Question submission failed. ' + error);
         }
+
+        // add question entry into channel's questions list.
+        this.refs.channelsRef.child(channelId).child('questions').child(questionId).set(true, error => {
+          if (error) {
+            console.log('submitQuestion: channels ref: error - ', error);
+            reject('Question submission partially failed. ' + error);
+
+            // revert the above operation.
+          }
+          resolve(question);
+        });
+
         resolve(question);
       });
     });

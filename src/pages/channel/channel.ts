@@ -37,7 +37,6 @@ export class ChannelPage {
         console.log('fetchChannelProfile: success - ', channelProfile);
         self.fetching = false;
         self.channelProfile = channelProfile;
-        console.log('fetchChannelProfile:', channelProfile);
       })
     .catch(error => {
       console.log('fetchChannelProfile: error - ', error);
