@@ -1,10 +1,43 @@
 <!-- Generated template for the AdminComponent component -->
 
-  <ion-item *ngFor="let item of questionsList">
-    <ion-card>
-      <ion-card-content>
-        {{item.question}}
-      </ion-card-content>
-    </ion-card>
-  </ion-item>
+<!-- Generated template for the QueriesComponent component -->
+<div>
+  <ion-card class="question-card" *ngFor="let question of questionsList">
+    <ion-row>
+      <ion-col>
+        <button ion-button icon-left clear small>
+          <div>{{question.askedBy}}</div> <!--TODO async load the full name-->
+        </button>
+      </ion-col>
+      <ion-col center text-right>
+        <ion-note class="timestamp">  <!--TODO use moment-->
+          11h ago
+        </ion-note>
+      </ion-col>
+    </ion-row>
+
+    <ion-card-content>
+      <p>{{question.text}}</p>
+    </ion-card-content>
+
+    <ion-row>
+      <ion-col text-left>
+        <button ion-button outline icon-left small color="secondary">
+          <ion-icon name="checkmark"></ion-icon>
+          Approve
+        </button>
+      </ion-col>
+      <ion-col text-right>
+        <button ion-button outline icon-left small color="danger">
+          <ion-icon name="trash"></ion-icon>
+          Remove
+        </button>
+      </ion-col>
+
+    </ion-row>
+
+  </ion-card>
+</div>
+
+
 

@@ -14,3 +14,20 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+
+
+// consumed on admin, and question tab
+.question-card{
+  .card-content-ios, .card-content-android {
+    padding-top: 0 ;
+    padding-bottom: 0;
+  }
+  .button-clear-ios-danger {
+    margin: -5px 0 !important;
+  }
+  .timestamp {
+    display: inline-block;
+    margin-top: 10px;
+    padding-right: 5px;
+  }
+}

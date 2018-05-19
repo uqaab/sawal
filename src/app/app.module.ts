@@ -13,7 +13,17 @@ import { QueriesComponent } from '../components/queries/queries';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
-import { UniqueDeviceID } from '@ionic-native/unique-device-id';
+import { Firebase } from '@ionic-native/firebase';
+import { AngularFireModule } from 'angularfire2';
+
+export const firebaseConfig = {
+  apiKey: "AIzaSyAYHF7bTatSCWGoNjni_vWbivyUGoV6vK8",
+  authDomain: "aka-app-786.firebaseapp.com",
+  databaseURL: "https://aka-app-786.firebaseio.com",
+  projectId: "aka-app-786",
+  storageBucket: "aka-app-786.appspot.com",
+  messagingSenderId: "613987934072"
+};
 
 @NgModule({
   declarations: [
@@ -26,7 +36,8 @@ import { UniqueDeviceID } from '@ionic-native/unique-device-id';
   ],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(MyApp),
+    // AngularFireModule.initializeApp(firebaseConfig),
+    IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -40,7 +51,7 @@ import { UniqueDeviceID } from '@ionic-native/unique-device-id';
   providers: [
     StatusBar,
     SplashScreen,
-    UniqueDeviceID,
+    Firebase,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })

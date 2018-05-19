@@ -1,4 +1,45 @@
 <!-- Generated template for the QueriesComponent component -->
 <div>
-  <h1>Questions list</h1>
+  <ion-card class="question-card" *ngFor="let question of questionsList">
+    <ion-row>
+      <ion-col>
+        <button ion-button icon-left clear small>
+        <div>{{question.askedBy}}</div> <!--TODO async load the full name-->
+        </button>
+      </ion-col>
+      <ion-col center text-right>
+        <ion-note class="timestamp">  <!--TODO use moment-->
+          11h ago
+        </ion-note>
+      </ion-col>
+    </ion-row>
+
+    <ion-card-content>
+      <p>{{question.text}}</p>
+    </ion-card-content>
+
+    <ion-row>
+      <ion-col col-5>
+        <button ion-button icon-left clear small>
+          <ion-icon name="thumbs-up-outline"></ion-icon>
+          <div><span>{{getCount(question.votes)}}</span> Votes</div>
+        </button>
+      </ion-col>
+      <ion-col col-5>
+        <button ion-button icon-left clear small>
+          <ion-icon name="text"></ion-icon>
+          <div><span>{{getCount(question.comments)}}</span> Comments</div>
+        </button>
+      </ion-col>
+      <ion-col col-2>
+        <button clear="" color="danger" icon-only="" ion-button="" class="button button-ios button-clear button-clear-ios-danger delete-btn">
+          <span class="button-inner">
+           <ion-icon is-active="true" name="trash" role="img" class="icon icon-ios ion-ios-trash" aria-label="trash"></ion-icon>
+          </span>
+        </button>
+      </ion-col>
+    </ion-row>
+
+  </ion-card>
 </div>
+
