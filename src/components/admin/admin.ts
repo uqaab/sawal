@@ -74,7 +74,7 @@ export class AdminComponent implements OnDestroy {
 
   ngOnDestroy () {
     console.log('admin: ngOnDestroy');
-    this.firebaseStore.unsubscribePendingQuestions(null, onPendingQuestionAdd);
+    this.firebaseStore.unsubscribePendingQuestions(null, this.onPendingQuestionAdd);
   }
 
 }

@@ -144,6 +144,9 @@ export class FirebaseStoreProvider {
 
   // unsubscribe pending questions list.
   unsubscribePendingQuestions(channelId, onQuestionAdd) {
+    // by default push the question to active channel
+    channelId = channelId || this.activeChannelId;
+
     this.refs.channelsRef.child(channelId).child('questions').off('child_added', onQuestionAdd);
   }
 
