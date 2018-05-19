@@ -43,7 +43,7 @@ export class FirebaseStoreProvider {
   }
 
   // main initialization logic - one-time only
-  init () {
+  public init () {
     const self = this;
 
     // get phone's device id to consider it as unique username
@@ -107,7 +107,7 @@ export class FirebaseStoreProvider {
 
       this.refs.usersRef.child(this.deviceId).set(profile, error => {
         if (error) {
-          console.log('registerUser:', error);
+          console.log('registerUser: error - ', error);
           reject('User registration failed.');
         }
         resolve(userName);
@@ -131,14 +131,35 @@ export class FirebaseStoreProvider {
           reject('Invalid channel code - please get one from the channel admin.');
         }
       }, (error) => {
+        console.log('getChannelCode: error - ', error);
         reject(error);
       });
     });
   }
 
-  // returns the references to be consumed across app
-  getRefs () {
-    return this.refs;
+  // registers the user against the unique device-id
+  submitQuestion(questionText) {
+
+    return new Promise((resolve, reject) => {
+      let question = {
+        approvedBy: null,
+        approvedOn: null,
+        askedBy: this.deviceId,
+        askedOn: Date.now(),
+        comments: {},
+        text: questionText,
+        type: 0, // 0 for questions, 1 for poll, etc for later scaling.
+        votes: {}
+      };
+
+      this.refs.questionsRef.child(this.deviceId).set(question, error => {
+        if (error) {
+          console.log('submitQuestion: error - ', error);
+          reject('Question submission failed. ' + error);
+        }
+        resolve(question);
+      });
+    });
   }
 
   // builds the references one-time only

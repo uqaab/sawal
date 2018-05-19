@@ -18,11 +18,11 @@ export class HomePage {
   registering: false;
   joining: false;
 
-  constructor(public navCtrl: NavController, private firebaseStore: FirebaseStoreProvider, public alertCtrl: AlertController) {
-    // console.log('channels', firebase.database().ref('channels/'));
+  constructor(private navCtrl: NavController, private firebaseStore: FirebaseStoreProvider, private alertCtrl: AlertController) {
     this.connect();
   }
 
+  // connects to firebase to validate the device against existing users.
   connect() {
     const self = this;
     this.fetching = true;
@@ -46,7 +46,7 @@ export class HomePage {
             this.alertCtrl.create({
               title: 'Error',
               subTitle: 'Could not connect. - Please connect to Internet and restart App.',
-              buttons: ['ok']
+              buttons: ['OK']
             }).present();
             connect();
           });

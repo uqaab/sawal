@@ -18,8 +18,8 @@ import * as firebase from 'firebase';
 export class ChannelPage {
 
   // activeTab: string = "admin";
-  activeTab: string = "queries";
-  // activeTab: string = "ask";
+  // activeTab: string = "queries";
+  activeTab: string = "ask";
   isAndroid: boolean = false;
 
   constructor(

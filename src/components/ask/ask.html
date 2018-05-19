@@ -1,6 +1,12 @@
 <!-- Generated template for the AskComponent component -->
 <div>
-  <h1>Ask your question:</h1>
-  <ion-textarea  class="question-desc" max="300" mini="10" row="5" placeholder="Enter a description" [(ngModel)]="question" ></ion-textarea>
-  <button ion-button full color="secondary" (click)="submit()">Submit</button>
+  <h1>Write your question:</h1>
+  <ion-textarea  class="question-desc" max="300" mini="10" row="5"
+                 placeholder="Enter a description"
+                 [(ngModel)]="questionText" ></ion-textarea>
+
+  <button ion-button full color="secondary" (click)="submit()">
+    Submit
+    <ion-spinner *ngIf="registering" name="dots"></ion-spinner>
+  </button>
 </div>

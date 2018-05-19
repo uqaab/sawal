@@ -1,11 +1,8 @@
 import { Component } from '@angular/core';
+import { AlertController } from 'ionic-angular';
 
-/**
- * Generated class for the AskComponent component.
- *
- * See https://angular.io/api/core/Component for more info on Angular
- * Components.
- */
+import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
+
 @Component({
   selector: 'ask',
   templateUrl: 'ask.html'
@@ -13,16 +10,52 @@ import { Component } from '@angular/core';
 export class AskComponent {
 
   text: string;
-  question: any = '';
+  submitting: boolean = false;
+  questionText: any = '';
 
-  constructor() {
+  constructor(private firebaseStore: FirebaseStoreProvider, public alertCtrl: AlertController) {
     console.log('Hello AskComponent Component');
-    this.text = 'Hello World';
-    this.question = 'Es sal, Sadqa e Fitr Ktna hy ?'
   }
 
-
+  // submits the question against the selected channel
   submit () {
     console.log('submit');
+    const self = this;
+
+    // payload validation
+    if (!this.questionText || this.questionText.length > 300 || this.questionText.length < 10) {
+
+      this.alertCtrl.create({
+        title: 'Error',
+        subTitle: 'Question text characters limit is <br> min = 10, and max = 300.',
+        buttons: ['Try Again']
+      }).present();
+
+      return;
+    }
+
+    self.submitting = true;
+    this.firebaseStore.submitQuestion(this.questionText)
+      .then(() => {
+        self.submitting = false;
+        self.questionText = '';
+
+        this.alertCtrl.create({
+          title: 'Successful !',
+          subTitle: 'Your question has been submitted successfully. It will be published once Admin approves it.',
+          buttons: ['OK']
+        }).present();
+
+      })
+      .catch(error => {
+        self.submitting = false;
+
+        this.alertCtrl.create({
+          title: 'Error',
+          subTitle: error,
+          buttons: ['OK']
+        }).present();
+      });
+
   }
 }
