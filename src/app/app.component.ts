@@ -6,16 +6,8 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { HomePage } from '../pages/home/home';
 import { ChannelPage } from '../pages/channel/channel';
 import { ListPage } from '../pages/list/list';
-import * as firebase from 'firebase';
 
-const config = {
-  apiKey: "AIzaSyAYHF7bTatSCWGoNjni_vWbivyUGoV6vK8",
-  authDomain: "aka-app-786.firebaseapp.com",
-  databaseURL: "https://aka-app-786.firebaseio.com",
-  projectId: "aka-app-786",
-  storageBucket: "aka-app-786.appspot.com",
-  messagingSenderId: "613987934072"
-};
+import { FirebaseStoreProvider } from '../providers/firebase-store/firebase-store';
 
 @Component({
   templateUrl: 'app.html'
@@ -28,7 +20,7 @@ export class MyApp {
 
   pages: Array<{title: string, component: any}>;
 
-  constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen) {
+  constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen, private firebaseStore: FirebaseStoreProvider) {
     this.initializeApp();
 
     // used for an example of ngFor and navigation
@@ -47,7 +39,8 @@ export class MyApp {
       this.splashScreen.hide();
     });
 
-    firebase.initializeApp(config);
+    // init our app firebase store
+    this.firebaseStore.init();
   }
 
   openPage(page) {

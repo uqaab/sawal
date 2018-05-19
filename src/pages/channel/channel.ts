@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
-import { Platform } from 'ionic-angular';
-import * as firebase from 'firebase';
 
 /**
  * Generated class for the ChannelPage page.
@@ -17,16 +15,7 @@ import * as firebase from 'firebase';
 })
 export class ChannelPage {
 
-  // activeTab: string = "admin";
-  activeTab: string = "queries";
-  // activeTab: string = "ask";
-  isAndroid: boolean = false;
-
-  constructor(
-    public navCtrl: NavController,
-    platform: Platform
-  ) {
-    this.isAndroid = platform.is('android');
+  constructor(public navCtrl: NavController, public navParams: NavParams) {
   }
 
   ionViewDidLoad() {

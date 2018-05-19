@@ -1,5 +1,6 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule} from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
 import { MyApp } from './app.component';
@@ -13,6 +14,8 @@ import { QueriesComponent } from '../components/queries/queries';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+
+import { FirebaseStoreProvider } from '../providers/firebase-store/firebase-store';
 
 import { Firebase } from '@ionic-native/firebase';
 
@@ -28,6 +31,7 @@ import { Firebase } from '@ionic-native/firebase';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
@@ -44,6 +48,7 @@ import { Firebase } from '@ionic-native/firebase';
     StatusBar,
     SplashScreen,
     Firebase,
+    FirebaseStoreProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
