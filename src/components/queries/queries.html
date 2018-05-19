@@ -32,8 +32,8 @@
       </ion-col>
       <ion-col col-5>
         <button ion-button icon-left clear small>
-          <ion-icon name="text"></ion-icon>
-          <div><span>{{getCount(question.comments)}}</span> Comments</div>
+          <ion-icon name="arrow-down"></ion-icon>
+          <div><span>{{getCount(question.comments)}}</span> Answers</div>
         </button>
       </ion-col>
       <ion-col col-2>
@@ -44,6 +44,40 @@
         </button>
       </ion-col>
     </ion-row>
+
+    <ion-card>
+      <!-- TODO - should be a separate component -->
+      <!-- text box starts - question / comment -->
+      <ion-row>
+        <ion-col>
+          <button ion-button icon-left clear small>
+            <div>{{question.askedBy}}</div> <!--TODO async load the full name-->
+          </button>
+        </ion-col>
+        <ion-col center text-right>
+          <ion-note class="timestamp">  <!--TODO use moment-->
+            11h ago
+          </ion-note>
+        </ion-col>
+      </ion-row>
+
+      <ion-card-content>
+        <p>{{question.text}}</p>
+      </ion-card-content>
+      <!-- text box ends - question / comment -->
+
+      <!-- controls -->
+      <ion-row>
+        <ion-col text-right>
+          <!--<button ion-button outline small color="primary">-->
+            <!--<ion-icon name="ios-create-outline"></ion-icon>-->
+          <!--</button>-->
+          <button ion-button outline small color="danger">
+            <ion-icon name="trash"></ion-icon>
+          </button>
+        </ion-col>
+      </ion-row>
+    </ion-card>
 
   </ion-card>
 </div>

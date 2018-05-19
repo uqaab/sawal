@@ -4,7 +4,18 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { HomePage } from '../pages/home/home';
+import { ChannelPage } from '../pages/channel/channel';
 import { ListPage } from '../pages/list/list';
+import * as firebase from 'firebase';
+
+const config = {
+  apiKey: "AIzaSyAYHF7bTatSCWGoNjni_vWbivyUGoV6vK8",
+  authDomain: "aka-app-786.firebaseapp.com",
+  databaseURL: "https://aka-app-786.firebaseio.com",
+  projectId: "aka-app-786",
+  storageBucket: "aka-app-786.appspot.com",
+  messagingSenderId: "613987934072"
+};
 
 @Component({
   templateUrl: 'app.html'
@@ -12,6 +23,7 @@ import { ListPage } from '../pages/list/list';
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
+  // rootPage: any = ChannelPage;
   rootPage: any = HomePage;
 
   pages: Array<{title: string, component: any}>;
@@ -34,6 +46,8 @@ export class MyApp {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
     });
+
+    firebase.initializeApp(config);
   }
 
   openPage(page) {

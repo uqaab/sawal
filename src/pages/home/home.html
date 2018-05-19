@@ -1,40 +1,52 @@
 <ion-header>
   <ion-navbar>
-    <!--<button ion-button menuToggle>-->
-      <!--<ion-icon name="menu"></ion-icon>-->
-    <!--</button>-->
-    <ion-title>AMA</ion-title>
+    <ion-title>Sawal</ion-title>
   </ion-navbar>
-
-  <ion-toolbar no-border-top>
-    <ion-segment [(ngModel)]="activeTab">
-      <ion-segment-button value="admin">
-        Admin
-      </ion-segment-button>
-      <ion-segment-button value="queries">
-        Questions
-      </ion-segment-button>
-      <ion-segment-button value="ask">
-        Ask
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
 
 </ion-header>
 
 <ion-content padding>
-  <div [ngSwitch]="activeTab">
-    <ion-list *ngSwitchCase="'admin'">
-     <admin></admin>
-    </ion-list>
 
-    <ion-list *ngSwitchCase="'queries'">
-      <queries></queries>
-    </ion-list>
+  <ion-row>
+    <ion-col col-12 text-center>
+      <img src="../../assets/imgs/logo.png"  width="100px" text-center alt="Logo">
+    </ion-col>
 
-    <ion-list *ngSwitchCase="'ask'">
-      <ask></ask>
-    </ion-list>
-  </div>
+    <!-- user identity section -->
+    <ion-col col-12>
+
+      <!-- while busy checking device-id account-->
+      <h4 text-center="">Please wait a sec...</h4>
+
+      <!-- user found already-->
+      <h4>Welcome, Zulqarnain</h4>
+
+      <!-- Please enter name to proceed -->
+      <h4>Please enter name to proceed</h4>
+      <!--<ion-input class="" max="12" min="3" [(ngModel)]="userName"></ion-input>-->
+
+      <ion-list>
+        <ion-item>
+          <ion-label floating>Name</ion-label>
+          <ion-input class="" max="12" min="3" [(ngModel)]="userName"></ion-input>
+        </ion-item>
+      </ion-list>
+      <button ion-button full color="secondary" (click)="submit()">Register</button>
+    </ion-col>
+
+    <!-- channel joining section -->
+    <ion-col col-12>
+      <h4>Enter Channel Code:</h4>
+      <ion-list>
+        <ion-item>
+          <ion-label floating>Name</ion-label>
+          <ion-input class="" max="4" min="4" [(ngModel)]="channelCode"></ion-input>
+        </ion-item>
+      </ion-list>
+      <button ion-button full color="primary" (click)="joinChannel()">Join</button>
+    </ion-col>
+
+  </ion-row>
 
 </ion-content>
+

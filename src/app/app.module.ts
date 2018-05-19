@@ -4,6 +4,7 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { ChannelPage } from '../pages/channel/channel';
 import { ListPage } from '../pages/list/list';
 
 import { AdminComponent } from '../components/admin/admin';
@@ -14,21 +15,12 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { Firebase } from '@ionic-native/firebase';
-import { AngularFireModule } from 'angularfire2';
-
-export const firebaseConfig = {
-  apiKey: "AIzaSyAYHF7bTatSCWGoNjni_vWbivyUGoV6vK8",
-  authDomain: "ama-app-786.firebaseapp.com",
-  databaseURL: "https://ama-app-786.firebaseio.com",
-  projectId: "ama-app-786",
-  storageBucket: "ama-app-786.appspot.com",
-  messagingSenderId: "613987934072"
-};
 
 @NgModule({
   declarations: [
     MyApp,
     HomePage,
+    ChannelPage,
     ListPage,
     AdminComponent,
     AskComponent,
@@ -36,13 +28,13 @@ export const firebaseConfig = {
   ],
   imports: [
     BrowserModule,
-    // AngularFireModule.initializeApp(firebaseConfig),
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
     HomePage,
+    ChannelPage,
     ListPage,
     AdminComponent,
     AskComponent,
