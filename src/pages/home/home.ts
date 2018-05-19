@@ -90,10 +90,11 @@ export class HomePage {
         self.joining = false;
         console.log('verifyChannelCode success');
 
+        // remember the channelId
+        this.firebaseStore.setActiveChannelId(channelId);
+
         // navigate to channel page
-        this.navCtrl.setRoot(ChannelPage, {
-          channelId: channelId
-        });
+        this.navCtrl.setRoot(ChannelPage);
       })
       .catch(error => {
         self.joining = false;

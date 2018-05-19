@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { AlertController } from 'ionic-angular';
 
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
@@ -7,7 +7,7 @@ import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-s
   selector: 'ask',
   templateUrl: 'ask.html'
 })
-export class AskComponent {
+export class AskComponent implements OnDestroy {
 
   text: string;
   submitting: boolean = false;
@@ -57,5 +57,9 @@ export class AskComponent {
         }).present();
       });
 
+  }
+
+  ngOnDestroy () {
+    console.log('~~destrying')
   }
 }

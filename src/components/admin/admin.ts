@@ -1,24 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
+import { AlertController } from 'ionic-angular';
 
-/**
- * Generated class for the AdminComponent component.
- *
- * See https://angular.io/api/core/Component for more info on Angular
- * Components.
- */
+import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
+
 @Component({
   selector: 'admin',
   templateUrl: 'admin.html'
 })
-export class AdminComponent {
+export class AdminComponent implements OnDestroy {
 
   questionsList = [];
 
-  constructor() {
+  constructor(private firebaseStore: FirebaseStoreProvider, public alertCtrl: AlertController) {
     console.log('Hello AdminComponent Component');
     this.questionsList = this.getQuesionList();
   }
-
 
   //get list of Farms.
   getQuesionList () {
@@ -70,6 +66,15 @@ export class AdminComponent {
   // retrieves the count / length of the object
   getCount(list) {
     return Object.keys(list || {}).length;
+  }
+
+  onPendingQuestionAdd(questionId, questionInfo) {
+
+  }
+
+  ngOnDestroy () {
+    console.log('admin: ngOnDestroy');
+    this.firebaseStore.unsubscribePendingQuestions(null, onPendingQuestionAdd);
   }
 
 }

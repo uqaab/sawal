@@ -115,6 +115,38 @@ export class FirebaseStoreProvider {
     });
   }
 
+  // retrieves the questions which needs approval
+  subscribePendingQuestions(channelId, onQuestionAdd) {
+
+    // by default push the question to active channel
+    channelId = channelId || this.activeChannelId;
+
+    return new Promise((resolve, reject) => {
+
+      this.refs.channelsRef.child(channelId).child('questions').on('child_added', snapshot => {
+        const questionId = snapshot.key;
+
+        // if valid channelId then we get the channel profile
+        if (channelProfile) {
+          onQuestionAdd(questionId, snapshot.val());
+          resolve(channelProfile);
+
+        } else {
+          console.log('getChannelProfile: error Invalid channelId - ');
+          reject('Invalid channelId.');
+        }
+      }, (error) => {
+        console.log('getChannelProfile: error - ', error);
+        reject(error);
+      });
+    });
+  }
+
+  // unsubscribe pending questions list.
+  unsubscribePendingQuestions(channelId, onQuestionAdd) {
+    this.refs.channelsRef.child(channelId).child('questions').off('child_added', onQuestionAdd);
+  }
+
   // returns the channelId of active / last-selected channel
   getActiveChannelId() {
     return this.activeChannelId;
