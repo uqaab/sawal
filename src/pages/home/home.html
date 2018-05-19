@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-navbar>
+    <!--<button ion-button menuToggle>-->
+      <!--<ion-icon name="menu"></ion-icon>-->
+    <!--</button>-->
+    <ion-title>AKA</ion-title>
+  </ion-navbar>
+
+  <ion-toolbar no-border-top>
+    <ion-segment [(ngModel)]="activeTab">
+      <ion-segment-button value="admin">
+        Admin
+      </ion-segment-button>
+      <ion-segment-button value="queries">
+        Queries
+      </ion-segment-button>
+      <ion-segment-button value="ask">
+        Ask
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+
+</ion-header>
+
+<ion-content padding>
+  <div [ngSwitch]="activeTab">
+    <ion-list *ngSwitchCase="'admin'">
+     <admin></admin>
+    </ion-list>
+
+    <ion-list *ngSwitchCase="'queries'">
+      <queries></queries>
+    </ion-list>
+
+    <ion-list *ngSwitchCase="'ask'">
+      <ask></ask>
+    </ion-list>
+  </div>
+
+</ion-content>
