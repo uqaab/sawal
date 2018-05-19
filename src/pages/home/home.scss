@@ -1,3 +1,14 @@
 page-home {
-
+  .welcome-section{
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  .channel-section{
+    ion-list{
+      margin-bottom: 10px;
+    }
+    ion-item{
+      border-top: none !important;
+    }
+  }
 }

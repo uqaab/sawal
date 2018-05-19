@@ -5,13 +5,30 @@ import { AlertController } from 'ionic-angular';
 import * as firebase from 'firebase';
 import { UniqueDeviceID } from '@ionic-native/unique-device-id';
 
+interface IRefs {
+  channelsCodeRef: any;
+  channelsRef: any;
+  questionsRef: any;
+  commentsRef: any;
+  usersRef: any;
+}
+
+interface IFirebaseConfig {
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: ""
+}
 
 @Injectable()
 export class FirebaseStoreProvider {
 
-  refs: any = {};
+  refs: IRefs = {};
   deviceId: string;
-  config: any = {
+  deviceIdPromise: any;
+  firebaseConfig: IFirebaseConfig = {
     apiKey: "AIzaSyBA1_7kjG2cYEyz2UAtHySoBtjR7a1Bm7E",
     authDomain: "sawal-app-e2ef9.firebaseapp.com",
     databaseURL: "https://sawal-app-e2ef9.firebaseio.com",
@@ -29,21 +46,21 @@ export class FirebaseStoreProvider {
     const self = this;
 
     // get phone's device id to consider it as unique username
-    this.getDeviceId()
+    this.deviceIdPromise = this.getDeviceId();
+
+    this.deviceIdPromise
       .then((uuid: any) => {
         console.log('uuid', uuid);
         self.deviceId = uuid;
 
-        let alert = this.alertCtrl.create({
+        this.alertCtrl.create({
           title: 'Device ID',
           subTitle: 'Your device id is : ' + uuid,
           buttons: ['OK']
-        });
-
-        alert.present();
+        }).present();
 
         // init firebase SDK
-        firebase.initializeApp(self.config);
+        firebase.initializeApp(self.firebaseConfig);
 
         // build the required References
         self.buildRefs();
@@ -53,10 +70,6 @@ export class FirebaseStoreProvider {
 
         // alert modal  - failed initializing app - could not read device-id
       });
-  }
-
-  getDeviceIdSync() {
-    return this.deviceId;
   }
 
   // returns the device id once retrieved already
@@ -69,6 +82,37 @@ export class FirebaseStoreProvider {
     return new Promise(resolve => resolve('test-device-id'));
   }
 
+  // returns the uuid - wait for the deviceId promise to be resolved first
+  getUserProfile(uuid) {
+
+    return new Promise((resolve, reject) => {
+
+      this.refs.usersRef.child(uuid).once('value', snapshot => {
+        resolve(snapshot.val());
+      }, (error) => {
+        reject(error);
+      });
+    });
+  }
+
+  // registers the user against the unique device-id
+  registerUser(userName) {
+
+    return new Promise((resolve, reject) => {
+      let profile = {
+        name: userName,
+        since: Date.now()
+      };
+
+      this.refs.usersRef.child(this.deviceId).set(profile, error => {
+        if (error) {
+          reject('User registration failed.');
+        }
+        resolve(userName);
+      });
+    });
+  }
+
   // returns the references to be consumed across app
   getRefs () {
     return this.refs;
@@ -76,6 +120,7 @@ export class FirebaseStoreProvider {
 
   // builds the references one-time only
   buildRefs () {
+    console.log('buildRefs');
     const appDb = firebase.database();
 
     this.refs.channelsCodeRef = appDb.ref('channels-codes');
@@ -85,5 +130,6 @@ export class FirebaseStoreProvider {
     this.refs.commentsRef = appDb.ref('comments');
 
     this.refs.usersRef = appDb.ref('users');
+    console.log(this.refs);
   }
 }

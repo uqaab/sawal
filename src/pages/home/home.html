@@ -16,31 +16,30 @@
     <ion-col col-12>
 
       <!-- while busy checking device-id account-->
-      <h4 text-center="">Please wait a sec...</h4>
+      <h4 text-center="" *ngIf="fetching">Please wait a sec...</h4>
 
       <!-- user found already-->
-      <h4>Welcome, Zulqarnain</h4>
+      <h4 class="welcome-section" *ngIf="!fetching && userName">Welcome, <strong>{{userName}}</strong> !</h4>
 
-      <!-- Please enter name to proceed -->
-      <h4>Please enter name to proceed</h4>
-      <!--<ion-input class="" max="12" min="3" [(ngModel)]="userName"></ion-input>-->
+      <!-- if new user - register first -->
+      <div *ngIf="!fetching && !userName" class="register-section">
+        <h4>Please enter name to proceed</h4>
+        <ion-list>
+          <ion-item>
+            <ion-input class="" max="12" min="3"  placeholder="Hello" [(ngModel)]="newUserName"></ion-input>
+          </ion-item>
+          <textarea name="" id="" cols="30" rows="10"></textarea>
+        </ion-list>
+        <button ion-button full color="secondary" (click)="registerUser()">Register</button>
+      </div>
 
-      <ion-list>
-        <ion-item>
-          <ion-label floating>Name</ion-label>
-          <ion-input class="" max="12" min="3" [(ngModel)]="userName"></ion-input>
-        </ion-item>
-      </ion-list>
-      <button ion-button full color="secondary" (click)="submit()">Register</button>
     </ion-col>
 
     <!-- channel joining section -->
-    <ion-col col-12>
-      <h4>Enter Channel Code:</h4>
+    <ion-col col-12 *ngIf="!fetching && userName" class="channel-section">
       <ion-list>
         <ion-item>
-          <ion-label floating>Name</ion-label>
-          <ion-input class="" max="4" min="4" [(ngModel)]="channelCode"></ion-input>
+          <ion-input class="" max="4" min="4"  placeholder="Enter Channel Code (4 Digits)" [(ngModel)]="channelCode"></ion-input>
         </ion-item>
       </ion-list>
       <button ion-button full color="primary" (click)="joinChannel()">Join</button>

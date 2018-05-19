@@ -51,8 +51,8 @@ import { UniqueDeviceID } from '@ionic-native/unique-device-id';
     StatusBar,
     SplashScreen,
     Firebase,
-    FirebaseStoreProvider,
     UniqueDeviceID,
+    FirebaseStoreProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     UtilityProvider
   ]
