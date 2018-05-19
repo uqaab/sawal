@@ -1,14 +1,7 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
-import { Platform } from 'ionic-angular';
-import * as firebase from 'firebase';
+import { IonicPage, Platform, NavController } from 'ionic-angular';
 
-/**
- * Generated class for the ChannelPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
+import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
 
 @IonicPage()
 @Component({
@@ -20,13 +13,35 @@ export class ChannelPage {
   // activeTab: string = "admin";
   // activeTab: string = "queries";
   activeTab: string = "ask";
+  channelProfile: any = {};
+  fetching: boolean = false;
   isAndroid: boolean = false;
 
   constructor(
     public navCtrl: NavController,
-    platform: Platform
+    platform: Platform,
+    private firebaseStore: FirebaseStoreProvider
   ) {
     this.isAndroid = platform.is('android');
+    this.fetchChannelProfile();
+  }
+
+  // fetches channel profile
+  fetchChannelProfile() {
+    const self = this;
+    const channelId = this.firebaseStore.getActiveChannelId();
+
+    self.fetching = true;
+    return this.firebaseStore.getChannelProfile(channelId)
+      .then(channelProfile => {
+        console.log('fetchChannelProfile: success - ', channelProfile);
+        self.fetching = false;
+        self.channelProfile = channelProfile;
+        console.log('fetchChannelProfile:', channelProfile);
+      })
+    .catch(error => {
+      console.log('fetchChannelProfile: error - ', error);
+    });
   }
 
   ionViewDidLoad() {

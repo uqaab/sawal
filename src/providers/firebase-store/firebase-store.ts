@@ -26,7 +26,7 @@ interface IFirebaseConfig {
 export class FirebaseStoreProvider {
 
   refs: IRefs = {};
-  testDeviceId: 'test-device-id2';
+  activeChannelId: string = '123123123';
   deviceId: string;
   deviceIdPromise: any;
   firebaseConfig: IFirebaseConfig = {
@@ -71,6 +71,64 @@ export class FirebaseStoreProvider {
 
         // alert modal  - failed initializing app - could not read device-id
       });
+  }
+
+  // registers the user against the unique device-id
+  submitQuestion(questionText) {
+
+    return new Promise((resolve, reject) => {
+      let question = {
+        approvedBy: null,
+        approvedOn: null,
+        askedBy: this.deviceId,
+        askedOn: Date.now(),
+        comments: {},
+        text: questionText,
+        type: 0, // 0 for questions, 1 for poll, etc for later scaling.
+        votes: {}
+      };
+
+      this.refs.questionsRef.child(this.deviceId).set(question, error => {
+        if (error) {
+          console.log('submitQuestion: error - ', error);
+          reject('Question submission failed. ' + error);
+        }
+        resolve(question);
+      });
+    });
+  }
+
+  // returns the channelId of active / last-selected channel
+  getActiveChannelId() {
+    return this.activeChannelId;
+  }
+
+  // sets the channelId once user joins successfully. to get channel profile later on channel page
+  setActiveChannelId(channelId) {
+    this.activeChannelId = channelId;
+  }
+
+  // returns channel profile against the given channelId
+  getChannelProfile(channelId) {
+
+    return new Promise((resolve, reject) => {
+
+      this.refs.channelsRef.child(channelId).once('value', snapshot => {
+        const channelProfile = snapshot.val();
+
+        // if valid channelId then we get the channel profile
+        if (channelProfile) {
+          resolve(channelProfile);
+
+        } else {
+          console.log('getChannelProfile: error Invalid channelId - ');
+          reject('Invalid channelId.');
+        }
+      }, (error) => {
+        console.log('getChannelProfile: error - ', error);
+        reject(error);
+      });
+    });
   }
 
   // returns the device id once retrieved already
@@ -123,7 +181,7 @@ export class FirebaseStoreProvider {
       this.refs.channelsCodeRef.child(channelCode).once('value', snapshot => {
         const channelId = snapshot.val();
 
-        // vif valid code then we get the channelId
+        // if valid code then we get the channelId
         if (channelId) {
           resolve(channelId);
 
@@ -133,31 +191,6 @@ export class FirebaseStoreProvider {
       }, (error) => {
         console.log('getChannelCode: error - ', error);
         reject(error);
-      });
-    });
-  }
-
-  // registers the user against the unique device-id
-  submitQuestion(questionText) {
-
-    return new Promise((resolve, reject) => {
-      let question = {
-        approvedBy: null,
-        approvedOn: null,
-        askedBy: this.deviceId,
-        askedOn: Date.now(),
-        comments: {},
-        text: questionText,
-        type: 0, // 0 for questions, 1 for poll, etc for later scaling.
-        votes: {}
-      };
-
-      this.refs.questionsRef.child(this.deviceId).set(question, error => {
-        if (error) {
-          console.log('submitQuestion: error - ', error);
-          reject('Question submission failed. ' + error);
-        }
-        resolve(question);
       });
     });
   }
@@ -174,6 +207,6 @@ export class FirebaseStoreProvider {
     this.refs.commentsRef = appDb.ref('comments');
 
     this.refs.usersRef = appDb.ref('users');
-    console.log(this.refs);
+    // console.log('this.refs : ', this.refs);
   }
 }
