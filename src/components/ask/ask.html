@@ -1,8 +1,9 @@
 <!-- Generated template for the AskComponent component -->
 <div>
-  <h1>Write your question:</h1>
+  <h3>Type and click Submit.</h3>
   <ion-textarea  class="question-desc" max="300" mini="10" row="5"
-                 placeholder="Enter a description"
+                 autofocus
+                 placeholder="Enter your question here..."
                  [(ngModel)]="questionText" ></ion-textarea>
 
   <button ion-button full color="secondary" (click)="submit()">
