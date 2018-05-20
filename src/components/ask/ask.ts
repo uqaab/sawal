@@ -10,6 +10,7 @@ import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-s
 export class AskComponent {
   submitting: boolean = false;
   questionText: any = '';
+  //questionText: any = 'test question 00 - ' + Date.now();
 
   constructor(private firebaseStore: FirebaseStoreProvider, public alertCtrl: AlertController) {
     //console.log('Hello AskComponent Component');
@@ -39,7 +40,7 @@ export class AskComponent {
 
         this.alertCtrl.create({
           title: 'Successful !',
-          subTitle: 'Your question has been submitted successfully. It will be published once Admin approves it.',
+          subTitle: 'Your question has been submitted successfully.',
           buttons: ['OK']
         }).present();
 

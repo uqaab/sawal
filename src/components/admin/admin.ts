@@ -90,7 +90,7 @@ export class AdminComponent implements OnDestroy {
     // find the index of target question to be removed.
     const questionIndex = this.utilService.getIndexOf(this.questions, 'questionId', questionId);
 
-    if (questionIndex) {
+    if (questionIndex !== undefined) {
       this.questions.splice(questionIndex, 1);
     }
   }
@@ -107,18 +107,16 @@ export class AdminComponent implements OnDestroy {
   }
 
   // marks the question as approved, so that it could be added to the list
-  approvePendingQuestion(question, index) {
+  approvePendingQuestion(questionId) {
     const wait = this.loadingCtrl.create({
       content: 'Please give us a moment...'
     });
 
     wait.present();
-    this.firebaseStore.approvePendingQuestion(question.questionId)
+    this.firebaseStore.approvePendingQuestion(questionId)
       .then(() => {
+        // question removal from local array list is done via fetchPendingQuestions()
         wait.dismiss();
-
-        // remove the entry from the list
-        this.questions.splice(index, 1);
       })
       .catch(error => {
 
@@ -130,50 +128,35 @@ export class AdminComponent implements OnDestroy {
       });
   }
 
-  // asks user to confirm, then it removes the selected question.
-  removePendingQuestion(question, index) {
-
-    // ask for confirmation first
-    this.alertCtrl.create({
-      title: 'Confirmation',
-      message: 'Are you sure you want to delete ?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Delete',
-          handler: () => {
-            this.removePendingQuestionConfirm(question, index);
-          }
-        }
-      ]
-    }).present();
-  }
-
   // removes the selected question from the channels list and questions list as well.
-  removePendingQuestionConfirm(question, index) {
-    const wait = this.loadingCtrl.create({
-      content: 'Please give us a moment...'
-    });
+  removePendingQuestion(questionId) {
 
-    wait.present();
-    this.firebaseStore.removePendingQuestion(question.questionId)
+    // ask for confirmation first.
+    this.utilService.confirmRemove()
       .then(() => {
-        //console.log('approvePendingQuestion: success');
-        wait.dismiss();
 
-        // remove the entry from the list
-        this.questions.splice(index, 1);
+        const wait = this.loadingCtrl.create({
+          content: 'Please give us a moment...'
+        });
+
+        wait.present();
+        this.firebaseStore.removeQuestion(questionId)
+          .then(() => {
+            // question removal from local array list is done via fetchPendingQuestions()
+            wait.dismiss();
+          })
+          .catch(error => {
+            wait.dismiss();
+
+            this.alertCtrl.create({
+              title: 'Error',
+              subTitle: error,
+              buttons: ['OK']
+            }).present();
+          });
       })
-      .catch(error => {
-
-        this.alertCtrl.create({
-          title: 'Error',
-          subTitle: error,
-          buttons: ['OK']
-        }).present();
+      .catch((error) => {
+        // handle error here.
       });
   }
 

@@ -229,17 +229,37 @@ export class FirebaseStoreProvider {
   }
 
   // removes the selected question from the channels list and questions list as well.
-  removePendingQuestion(questionId, channelId?) {
+  removeQuestion(questionId, channelId?) {
 
-    // remove the entry from questions list
-    return this.refs.questionsRef.child(questionId).remove()
+    // by default push the question to active channel
+    channelId = channelId || this.activeChannelId;
+
+    // remove the entry from channel's questions list
+    return this.refs.channelsRef.child(channelId)
+      .child('questions').child(questionId)
+      .remove()
       .then(()=> {
 
-        // by default push the question to active channel
-        channelId = channelId || this.activeChannelId;
+        // remove the entry from questions list
+        return this.refs.questionsRef.child(questionId).remove()
+      });
+  }
 
-        // remove the entry from channel's questions list
-        return this.refs.channelsRef.child(channelId).child('questions').child(questionId).remove();
+  // removes the selected question from the channels list and questions list as well.
+  removeAnswer(questionId, commentId, channelId?) {
+
+    // by default push the question to active channel
+    channelId = channelId || this.activeChannelId;
+
+    // remove the entry from channel's comments list
+    return this.refs.channelsRef.child(channelId)
+      .child('questions').child(questionId)
+      .child('comments').child(commentId)
+      .remove()
+      .then(()=> {
+
+        // remove the entry from questions list
+        return this.refs.commentsRef.child(commentId).remove()
       });
   }
 
@@ -394,9 +414,8 @@ export class FirebaseStoreProvider {
 
   // builds the references one-time only
   buildRefs () {
-    console.log('buildRefs');
-
     const appDb = firebase.database();
+
     this.refs = {
       channelsCodeRef: appDb.ref('channels-codes'),
       channelsRef: appDb.ref('channels'),
@@ -404,7 +423,5 @@ export class FirebaseStoreProvider {
       commentsRef: appDb.ref('comments'),
       usersRef: appDb.ref('users')
     };
-
-    // console.log('this.refs : ', this.refs);
   }
 }

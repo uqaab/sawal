@@ -46,7 +46,7 @@
         </button>
       </ion-col>
       <ion-col col-2>
-        <button clear color="danger" class="button button-ios button-clear button-clear-ios-danger delete-btn" (click)="removeQuestionConfirmation(true)">
+        <button clear color="danger" class="button button-ios button-clear button-clear-ios-danger delete-btn" (click)="removeQuestion(question.questionId)">
           <span class="button-inner">
            <ion-icon is-active="true" name="trash" role="img" class="icon icon-ios ion-ios-trash" aria-label="trash"></ion-icon>
           </span>
@@ -78,7 +78,7 @@
       <!-- controls -->
       <ion-row>
         <ion-col text-right>
-          <button ion-button outline small color="danger" (click)="removeQuestionConfirmation(false)">
+          <button ion-button outline small color="danger" (click)="removeComment(question.questionId, comment.commentId)">
             <ion-icon name="trash"></ion-icon>
           </button>
         </ion-col>

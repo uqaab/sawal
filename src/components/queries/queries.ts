@@ -25,7 +25,7 @@ export class QueriesComponent implements OnDestroy {
                public loadingCtrl: LoadingController
   ) {
     this.checkApprovedQuestionsList();
-    this.fetchPendingQuestions();
+    this.fetchApprovedQuestions();
   }
 
   // retrieves the count / length of the object
@@ -117,13 +117,13 @@ export class QueriesComponent implements OnDestroy {
     // find the index of target question to be removed.
     const questionIndex = this.utilService.getIndexOf(this.questions, 'questionId', questionId);
 
-    if (questionIndex) {
+    if (questionIndex !== undefined) {
       this.questions.splice(questionIndex, 1);
     }
   }
 
   // sync with the pending questions all the time.
-  fetchPendingQuestions() {
+  fetchApprovedQuestions() {
     const actions = {
       onAdd: (question) => this.questionsListOnAdd(question),
       onRemove: (questionId) => this.questionsListOnRemove(questionId)
@@ -133,39 +133,64 @@ export class QueriesComponent implements OnDestroy {
     this.unSubscribeQuestionsList = this.firebaseStore.subscribeChannelQuestions(null, actions);
   }
 
-  removeQuestionConfirmation (isQuestion: boolean) {
-    this.alertCtrl.create({
-      title: 'Confirmation',
-      message: 'Are you sure you want to delete ?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            console.log('Cancel clicked');
-          }
-        },
-        {
-          text: 'Delete',
-          handler: () => {
-            console.log('Delete clicked');
+  // removes the selected question from the channels list and questions list as well.
+  removeQuestion(questionId) {
 
-            //Call APIs based on conditions for delete question or answer.
-            isQuestion ? this.removeQuestion() : this.removeAnswer();
-          }
-        }
-      ]
-    }).present();
+    // ask for confirmation first.
+    this.utilService.confirmRemove()
+      .then(() => {
+
+        const wait = this.loadingCtrl.create({
+          content: 'Please give us a moment...'
+        });
+
+        wait.present();
+        this.firebaseStore.removeQuestion(questionId)
+          .then(() => {
+            // question removal from local array list is done via fetchApprovedQuestions()
+            wait.dismiss();
+          })
+          .catch(error => {
+            wait.dismiss();
+
+            this.alertCtrl.create({
+              title: 'Error',
+              subTitle: error,
+              buttons: ['OK']
+            }).present();
+          });
+      })
+      .catch((error) => {
+        // handle error here.
+      });
   }
 
-  removeQuestion () {
-    console.log('removeQuestion');
-    // todo: send delete question api call
-  }
+  // removes the selected question from the channels list and questions list as well.
+  removeAnswer(questionId, commentId) {
 
-  removeAnswer () {
-    console.log('removeAnswer');
-    // todo: send delete answer api call
+    // ask for confirmation first.
+    this.utilService.confirmRemove()
+      .then(() => {
+
+        const wait = this.loadingCtrl.create({
+          content: 'Please give us a moment...'
+        });
+
+        wait.present();
+        this.firebaseStore.removeAnswer(questionId, commentId)
+          .then(() => {
+            // comment removal from local array list is done via fetchApprovedQuestions()
+            wait.dismiss();
+          })
+          .catch(error => {
+
+            this.alertCtrl.create({
+              title: 'Error',
+              subTitle: error,
+              buttons: ['OK']
+            }).present();
+          });
+      });
   }
 
   // to be invoked when view is about to be destroyed.

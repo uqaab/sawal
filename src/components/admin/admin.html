@@ -35,13 +35,13 @@
     <!-- controls -->
     <ion-row>
       <ion-col text-left>
-        <button ion-button outline icon-left small color="secondary" (click)="approvePendingQuestion(question, i)">
+        <button ion-button outline icon-left small color="secondary" (click)="approvePendingQuestion(question.questionId)">
           <ion-icon name="checkmark"></ion-icon>
           Approve
         </button>
       </ion-col>
       <ion-col text-right>
-        <button ion-button outline icon-left small color="danger" (click)="removePendingQuestion(question, i)">
+        <button ion-button outline icon-left small color="danger" (click)="removePendingQuestion(question.questionId)">
           <ion-icon name="trash"></ion-icon>
           Remove
         </button>
