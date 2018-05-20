@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AlertController } from 'ionic-angular';
+import { AlertController, LoadingController } from 'ionic-angular';
 import * as moment from 'moment';
 
 /**
@@ -20,12 +20,23 @@ export class QueriesComponent {
   showAnswer: any;
   toggleAnswer: any = {};
 
-  constructor(private alertCtrl: AlertController) {
+  constructor(private alertCtrl: AlertController, public loadingCtrl: LoadingController) {
     console.log('Hello QueriesComponent Component');
     this.text = 'Hello World';
     this.showAnswer = false;
     this.createdDate = moment().fromNow();
     this.questionsList = this.getQuesionList();
+    this.startLoading();
+  }
+
+  startLoading () {
+    let loading = this.loadingCtrl.create({
+      content: 'Please wait...'
+    }).present();
+
+    setTimeout(() => {
+      loading.dismiss();
+    }, 2000);
   }
 
   //get list of Farms.
