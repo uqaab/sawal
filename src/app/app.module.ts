@@ -14,13 +14,11 @@ import { QueriesComponent } from '../components/queries/queries';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { Firebase } from '@ionic-native/firebase';
+import { UniqueDeviceID } from '@ionic-native/unique-device-id';
 
 import { FirebaseStoreProvider } from '../providers/firebase-store/firebase-store';
-
-import { Firebase } from '@ionic-native/firebase';
-import { UtilityProvider } from '../providers/utility/utility';
-
-import { UniqueDeviceID } from '@ionic-native/unique-device-id';
+import { UtilProvider } from '../providers/util/util';
 
 @NgModule({
   declarations: [
@@ -54,7 +52,7 @@ import { UniqueDeviceID } from '@ionic-native/unique-device-id';
     UniqueDeviceID,
     FirebaseStoreProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    UtilityProvider
+    UtilProvider
   ]
 })
 export class AppModule {}

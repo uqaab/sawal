@@ -4,6 +4,7 @@ import { AlertController, LoadingController } from 'ionic-angular';
 import * as moment from 'moment';
 
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
+import { UtilProvider } from '../../providers/util/util';
 
 @Component({
   selector: 'admin',
@@ -19,6 +20,7 @@ export class AdminComponent implements OnDestroy {
 
   constructor(
     private firebaseStore: FirebaseStoreProvider,
+    private utilService: UtilProvider,
     public alertCtrl: AlertController,
     public loadingCtrl: LoadingController
   ) {
@@ -58,20 +60,51 @@ export class AdminComponent implements OnDestroy {
       });
   }
 
+  // filter questions with respect to active filter
+  matchFilter = (question) => {
+    return question.approvedBy === undefined;
+  };
+
+  // hides the loading popup, if not hided before.
+  hideWaitScreen() {
+    if (this.fetchingWait) {
+      this.fetching = false;
+      this.fetchingWait.dismiss();
+      this.fetchingWait = null;
+    }
+  }
+
+  // subscription - to be invoked on new question add
+  questionsListOnAdd(question) {
+
+    // skip if filter does not match the questions i.e. for type pending-approval
+    if (!this.matchFilter(question)) {
+      return;
+    }
+
+    this.questions.push(question);
+    this.hideWaitScreen();
+  }
+
+  // subscription - to be invoked on existing question removed
+  questionsListOnRemove(questionId) {
+
+    // find the index of target question to be removed.
+    const questionIndex = this.utilService.getIndexOf(this.questions, 'questionId', questionId);
+
+    if (questionIndex) {
+      this.questions.splice(questionIndex, 1);
+    }
+  }
+
   // sync with the pending questions all the time.
   fetchPendingQuestions() {
-    const self = this;
-    this.unSubscribePendingQuestions = this.firebaseStore.subscribePendingQuestions(null, (question) => {
-      //console.log('fetchPendingQuestions:', question);
-      self.questions.push(question);
+    const actions = {
+      onAdd: (question) => this.questionsListOnAdd(question),
+      onRemove: (questionId) => this.questionsListOnRemove(questionId)
+    };
 
-      // hide wait screen if left activated
-      if (this.fetchingWait) {
-        this.fetching = false;
-        this.fetchingWait.dismiss();
-        this.fetchingWait = null;
-      }
-    });
+    this.unSubscribePendingQuestions = this.firebaseStore.subscribeChannelQuestions(null, actions, false);
   }
 
   // marks the question as approved, so that it could be added to the list

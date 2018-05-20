@@ -111,25 +111,47 @@ export class FirebaseStoreProvider {
     });
   }
 
-  // retrieves the questions which needs approval
-  subscribePendingQuestions(channelId, onQuestionAdd) {
+  // retrieves the channel questions.
+  subscribeChannelQuestions(channelId, actions, monitorApproval) {
 
     // by default push the question to active channel
     channelId = channelId || this.activeChannelId;
 
+    // when a new question gets added to the channel
     const onChannelQuestionAdd = (questionSnapshot) => {
       const questionId = questionSnapshot.key;
 
-      // check question details
-      this.refs.questionsRef.child(questionId).once('value', (questionInfoSnapshot) => {
-        const question = questionInfoSnapshot.val();
+      // get question details
+      const getQuestionInfo = () => {
+        this.refs.questionsRef.child(questionId).once('value', (questionInfoSnapshot) => {
+          const question = questionInfoSnapshot.val();
+          actions.onAdd(question);
+          //console.log('onChannelQuestionAdd - add');
+        });
+      };
 
-        // filter the questions by pending-approval
-        if (question && question.approvedBy === undefined) {
-          question.questionId = questionId;
-          onQuestionAdd(question);
-        }
-      });
+      // get newly added question details
+      getQuestionInfo();
+
+      // monitor question approval change to add to list. i.e. from pending-approval to approved.
+      if (monitorApproval) {
+        console.log('monitorApproval: monitoring approval for ', questionId);
+        this.refs.questionsRef.child(questionId).child('approvedBy').once('value', (questionSnapshot) => {
+          const approvedBy = questionSnapshot.val();
+
+          // get approved question details to add to the list.
+          if (approvedBy) {
+            console.log('monitorApproval: approved', approvedBy);
+            getQuestionInfo();
+          }
+        });
+      }
+    };
+
+    // when a question gets removed from the channel
+    const onChannelQuestionRemove = (questionSnapshot) => {
+      const questionId = questionSnapshot.key;
+      actions.onRemove(questionId);
     };
 
     // questions list
@@ -137,10 +159,12 @@ export class FirebaseStoreProvider {
 
     // subscribe the questions list
     channelQuestionsRef.on('child_added', onChannelQuestionAdd);
+    channelQuestionsRef.on('child_removed', onChannelQuestionRemove);
 
     // returns the detach callback to unSubscribe the list
     return () => {
       channelQuestionsRef.off('child_added', onChannelQuestionAdd);
+      channelQuestionsRef.off('child_removed', onChannelQuestionRemove);
     }
   }
 
