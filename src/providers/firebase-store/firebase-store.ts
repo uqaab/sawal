@@ -166,17 +166,32 @@ export class FirebaseStoreProvider {
   // monitor question approval change to add to list. i.e. from pending-approval to approved.
   channelQuestionOnApprove(questionId) {
     console.log('monitorApproval: monitoring approval for ', questionId);
-    return new Promise( (resolve, reject) => {
 
-      this.refs.questionsRef.child(questionId).child('approvedBy').once('value', (questionSnapshot) => {
-        const approvedBy = questionSnapshot.val();
+    let subscriber: any = {};
+    const questionRef = this.refs.questionsRef.child(questionId);
+
+    subscriber.promise = new Promise( (resolve, reject) => {
+
+      // dispatcher to call when question has approved, or view has destroyed
+      subscriber.dispatcher = () => {
+        questionRef.off('value', onQuestionUpdate);
+      };
+
+      const onQuestionUpdate = (questionSnapshot) => {
+        const question = questionSnapshot.val();
 
         // get approved question details to add to the list.
-        if (approvedBy) {
-          console.log('monitorApproval: approved', approvedBy);
+        if (question && question.approvedBy) {
+          console.log('monitorApproval: approved', question);
+          resolve(question);
         }
-      });
+      };
+
+      // register "on" event
+      questionRef.on('value', onQuestionUpdate);
     });
+
+    return subscriber;
   }
 
   // marks the question as approved, so that it could be added to the list

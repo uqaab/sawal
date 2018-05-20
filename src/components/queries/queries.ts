@@ -17,6 +17,7 @@ export class QueriesComponent implements OnDestroy {
   waitState: any;
   questions = [];
   unSubscribeQuestionsList: Function;
+  dispatchers: any = {};
 
   constructor( private firebaseStore: FirebaseStoreProvider,
                private utilService: UtilProvider,
@@ -82,9 +83,22 @@ export class QueriesComponent implements OnDestroy {
     // if not approved yet, monitor the approval.
     if (!this.matchFilter(question)) {
 
-      this.firebaseStore.channelQuestionOnApprove(question.questionId)
-        .then(() => {
-          this.questionsListOnAdd(question);
+      const subscriber = this.firebaseStore.channelQuestionOnApprove(question.questionId);
+
+      // add dispatcher for onDestroy removal
+      this.dispatchers[question.questionId] = subscriber.dispatcher;
+
+      subscriber.promise
+        .then((approvedQuestion) => {
+
+          // question has be approved now
+          this.questionsListOnAdd(approvedQuestion);
+
+          // call dispatcher
+          subscriber.dispatcher();
+
+          // remove dispatcher from dispatchers list to avoid duplicate calls
+          delete this.dispatchers[question.questionId];
         })
         .catch((error) => {
           console.log('questionsListOnAdd: monitor approval failed', error);
@@ -93,6 +107,7 @@ export class QueriesComponent implements OnDestroy {
       return;
     }
 
+    // add into the list.
     this.questions.push(question);
     this.hideWaitScreen();
   }
@@ -157,6 +172,11 @@ export class QueriesComponent implements OnDestroy {
   // to be invoked when view is about to be destroyed.
   ngOnDestroy() {
     this.unSubscribeQuestionsList();
+
+    // call all the pending approval questions listeners
+    for (var questionId in this.dispatchers) {
+      this.dispatchers[questionId]();
+    }
   }
 
 }
