@@ -117,25 +117,92 @@ export class FirebaseStoreProvider {
     // by default push the question to active channel
     channelId = channelId || this.activeChannelId;
 
-    const onChildAdd = (snapshot) => {
-      const question = snapshot.val();
+    const onChannelQuestionAdd = (questionSnapshot) => {
+      const questionId = questionSnapshot.key;
 
-      // filter the questions by pending-approval
-      if (question && question.approvedBy === undefined) {
-        onQuestionAdd(question);
-      }
+      // check question details
+      this.refs.questionsRef.child(questionId).once('value', (questionInfoSnapshot) => {
+        const question = questionInfoSnapshot.val();
+
+        // filter the questions by pending-approval
+        if (question && question.approvedBy === undefined) {
+          onQuestionAdd(question);
+        }
+      });
     };
 
     // questions list
     const channelQuestionsRef = this.refs.channelsRef.child(channelId).child('questions');
 
     // subscribe the questions list
-    channelQuestionsRef.on('child_added', onChildAdd);
+    channelQuestionsRef.on('child_added', onChannelQuestionAdd);
 
     // returns the detach callback to unSubscribe the list
     return () => {
-      channelQuestionsRef.off('child_added', onChildAdd);
+      channelQuestionsRef.off('child_added', onChannelQuestionAdd);
     }
+  }
+
+  // retrieves the questions which needs approval
+  hasPendingQuestions(channelId?: string) {
+
+    return new Promise((mainResolve, mainReject) => {
+
+      // by default push the question to active channel
+      channelId = channelId || this.activeChannelId;
+      const promises = [];
+
+      // read whole list of questions of the channel
+      this.refs.channelsRef.child(channelId).child('questions').once('value', snapshot => {
+        const questions = snapshot.val();
+
+        // when channel has no questions at all. (of all types) - no pending questions.
+        if (!questions) {
+          mainResolve(false);
+          return;
+        }
+
+        // check question details
+        const checkForPending = (questionId) => {
+
+          let promise = new Promise((resolve) => {
+            this.refs.questionsRef.child(questionId).once('value', (questionInfoSnapshot) => {
+              const question = questionInfoSnapshot.val();
+              const isTypePending = question && question.approvedBy === undefined;
+
+              // if found one, skip waiting for others
+              if (isTypePending) {
+                mainResolve(true);
+              }
+
+              resolve(isTypePending);
+            });
+          });
+
+          promises.push(promise);
+        };
+
+        // iterate over each question to fetch its details
+        for (let questionId in questions) {
+          checkForPending(questionId);
+        }
+
+        // when all promise resolves, stop waiting for miracle, and consider there is no pending question.
+        Promise.all(promises)
+          .then(results => {
+            mainResolve(false);
+          })
+          .catch(error => {
+            console.log('hasPendingQuestions: all catch', channelId, error);
+            // handle this case.
+            mainReject(error);
+          });
+
+      }, (error) => {
+        console.log('hasPendingQuestions: error - ', error);
+        mainReject(error);
+      });
+    });
   }
 
   // returns the channelId of active / last-selected channel
@@ -178,7 +245,7 @@ export class FirebaseStoreProvider {
 
   // returns test device-id for development purpose
   getTestDeviceId() {
-    return new Promise(resolve => resolve('test-device-id'));
+    return Promise.resolve('test-device-id');
   }
 
   // returns the uuid - wait for the deviceId promise to be resolved first

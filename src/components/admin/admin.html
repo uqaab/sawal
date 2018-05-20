@@ -1,7 +1,14 @@
-<!-- Generated template for the AdminComponent component -->
 
-<!-- Generated template for the QueriesComponent component -->
-<div>
+<!-- loading screen -->
+<h4 *ngIf="fetching">Fetching list...</h4>
+
+<!-- when failed in connecting -->
+<h4 *ngIf="!questions.length && !fetching && fetchingErr">{{fetchingErr}}</h4>
+
+<!-- when no question pending for approval -->
+<h4 *ngIf="!questions.length && !fetching && !fetchingErr">No questions having pending approval.</h4>
+
+<div *ngIf="questions.length">
   <ion-card class="question-card" *ngFor="let question of questions">
 
     <!-- TODO - should be a separate component -->

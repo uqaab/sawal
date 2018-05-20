@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, Platform, NavController } from 'ionic-angular';
+import { IonicPage, NavController } from 'ionic-angular';
 
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
 
@@ -10,19 +10,16 @@ import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-s
 })
 export class ChannelPage {
 
-   activeTab: string = "admin";
-   //activeTab: string = "queries";
+  activeTab: string = "admin";
+  //activeTab: string = "queries";
   //activeTab: string = "ask";
   channelProfile: any = {};
   fetching: boolean = false;
-  isAndroid: boolean = false;
 
   constructor(
     public navCtrl: NavController,
-    platform: Platform,
     private firebaseStore: FirebaseStoreProvider
   ) {
-    this.isAndroid = platform.is('android');
     this.fetchChannelProfile();
   }
 
@@ -34,7 +31,6 @@ export class ChannelPage {
     self.fetching = true;
     return this.firebaseStore.getChannelProfile(channelId)
       .then(channelProfile => {
-        console.log('fetchChannelProfile: success - ', channelProfile);
         self.fetching = false;
         self.channelProfile = channelProfile;
       })

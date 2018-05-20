@@ -93,14 +93,15 @@ export class QueriesComponent {
     return Object.keys(list || {}).length;
   }
 
-  removeQuestionConfirmation (question?: string) {
+  removeQuestionConfirmation (isQuestion: boolean) {
     this.alertCtrl.create({
       title: 'Confirmation',
       message: 'Are you sure you want to delete?',
       buttons: [
         {
           text: 'Cancel',
-          role: 'cancel', handler: () => {
+          role: 'cancel',
+          handler: () => {
             console.log('Cancel clicked');
           }
         },
@@ -109,8 +110,8 @@ export class QueriesComponent {
           handler: () => {
             console.log('Delete clicked');
 
-            //Call API's based on conditions for delete question or answer.
-            question === 'question' ? this.removeQuestion() : this.removeAnswer();
+            //Call APIs based on conditions for delete question or answer.
+            isQuestion ? this.removeQuestion() : this.removeAnswer();
           }
         }
       ]

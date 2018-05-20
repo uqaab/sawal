@@ -89,7 +89,6 @@ export class HomePage {
     this.firebaseStore.getChannelCode(this.channelCode)
       .then((channelId) => {
         self.joining = false;
-        console.log('verifyChannelCode success');
 
         // remember the channelId
         this.firebaseStore.setActiveChannelId(channelId);
