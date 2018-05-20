@@ -6,40 +6,36 @@ import * as firebase from 'firebase';
 import { UniqueDeviceID } from '@ionic-native/unique-device-id';
 
 interface IRefs {
-  channelsCodeRef: any;
-  channelsRef: any;
-  questionsRef: any;
-  commentsRef: any;
-  usersRef: any;
+  channelsCodeRef?: any;
+  channelsRef?: any;
+  questionsRef?: any;
+  commentsRef?: any;
+  usersRef?: any;
 }
 
-interface IFirebaseConfig {
-  apiKey: "",
-  authDomain: "",
-  databaseURL: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: ""
+export class FirebaseConfig {
+  apiKey: string = 'AIzaSyBA1_7kjG2cYEyz2UAtHySoBtjR7a1Bm7E';
+  authDomain: string = 'sawal-app-e2ef9.firebaseapp.com';
+  databaseURL: string = 'https://sawal-app-e2ef9.firebaseio.com';
+  projectId: string = 'sawal-app-e2ef9';
+  storageBucket: string = '';
+  messagingSenderId: string = '102631740478';
 }
 
 @Injectable()
 export class FirebaseStoreProvider {
-
   refs: IRefs = {};
+  firebaseConfig: FirebaseConfig;
   activeChannelId: string = '123123123';
   deviceId: string;
   deviceIdPromise: any;
-  firebaseConfig: IFirebaseConfig = {
-    apiKey: "AIzaSyBA1_7kjG2cYEyz2UAtHySoBtjR7a1Bm7E",
-    authDomain: "sawal-app-e2ef9.firebaseapp.com",
-    databaseURL: "https://sawal-app-e2ef9.firebaseio.com",
-    projectId: "sawal-app-e2ef9",
-    storageBucket: "",
-    messagingSenderId: "102631740478"
-  };
-
-  constructor(public http: HttpClient, private uniqueDeviceID: UniqueDeviceID, public alertCtrl: AlertController) {
+  constructor(
+    public http: HttpClient,
+    private uniqueDeviceID: UniqueDeviceID,
+    public alertCtrl: AlertController
+  ) {
     console.log('FirebaseStoreProvider');
+    this.firebaseConfig = new FirebaseConfig();
   }
 
   // main initialization logic - one-time only
@@ -121,33 +117,25 @@ export class FirebaseStoreProvider {
     // by default push the question to active channel
     channelId = channelId || this.activeChannelId;
 
-    return new Promise((resolve, reject) => {
+    const onChildAdd = (snapshot) => {
+      const questionId = snapshot.key;
+      const question = snapshot.val();
 
-      this.refs.channelsRef.child(channelId).child('questions').on('child_added', snapshot => {
-        const questionId = snapshot.key;
+      if (question) {
+        onQuestionAdd(questionId, question);
 
-        // if valid channelId then we get the channel profile
-        if (channelProfile) {
-          onQuestionAdd(questionId, snapshot.val());
-          resolve(channelProfile);
+      } else {
+        console.log('subscribePendingQuestions: error Invalid channelId - ');
+      }
+    };
 
-        } else {
-          console.log('getChannelProfile: error Invalid channelId - ');
-          reject('Invalid channelId.');
-        }
-      }, (error) => {
-        console.log('getChannelProfile: error - ', error);
-        reject(error);
-      });
-    });
-  }
+    // subscribe the questions list
+    this.refs.channelsRef.child(channelId).child('questions').on('child_added', onChildAdd);
 
-  // unsubscribe pending questions list.
-  unsubscribePendingQuestions(channelId, onQuestionAdd) {
-    // by default push the question to active channel
-    channelId = channelId || this.activeChannelId;
-
-    this.refs.channelsRef.child(channelId).child('questions').off('child_added', onQuestionAdd);
+    // returns the detach callback to unSubscribe the list
+    return () => {
+      this.refs.channelsRef.child(channelId).child('questions').off('child_added', onChildAdd);
+    }
   }
 
   // returns the channelId of active / last-selected channel
@@ -250,15 +238,16 @@ export class FirebaseStoreProvider {
   // builds the references one-time only
   buildRefs () {
     console.log('buildRefs');
+
     const appDb = firebase.database();
+    this.refs = {
+      channelsCodeRef: appDb.ref('channels-codes'),
+      channelsRef: appDb.ref('channels'),
+      questionsRef: appDb.ref('questions'),
+      commentsRef: appDb.ref('comments'),
+      usersRef: appDb.ref('users')
+    };
 
-    this.refs.channelsCodeRef = appDb.ref('channels-codes');
-    this.refs.channelsRef = appDb.ref('channels');
-
-    this.refs.questionsRef = appDb.ref('questions');
-    this.refs.commentsRef = appDb.ref('comments');
-
-    this.refs.usersRef = appDb.ref('users');
     // console.log('this.refs : ', this.refs);
   }
 }

@@ -14,9 +14,9 @@ export class HomePage {
   userName: string;
   newUserName: string;
   channelCode: string;
-  fetching: false;
-  registering: false;
-  joining: false;
+  fetching: boolean = false;
+  registering: boolean = false;
+  joining: boolean = false;
 
   constructor(private navCtrl: NavController, private firebaseStore: FirebaseStoreProvider, private alertCtrl: AlertController) {
     this.connect();
@@ -43,12 +43,12 @@ export class HomePage {
             }
           })
           .catch(error => {
+
             this.alertCtrl.create({
               title: 'Error',
               subTitle: 'Could not connect. - Please connect to Internet and restart App.',
               buttons: ['OK']
             }).present();
-            connect();
           });
       });
   }
