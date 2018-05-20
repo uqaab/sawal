@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AlertController } from 'ionic-angular';
 
 /**
  * Generated class for the QueriesComponent component.
@@ -15,7 +16,7 @@ export class QueriesComponent {
   text: string;
   questionsList: any = [];
 
-  constructor() {
+  constructor(private alertCtrl: AlertController) {
     console.log('Hello QueriesComponent Component');
     this.text = 'Hello World';
     this.questionsList = this.getQuesionList();
@@ -72,5 +73,40 @@ export class QueriesComponent {
   getCount(list) {
     return Object.keys(list || {}).length;
   }
+
+  removeQuestionConfirmation (question?: string) {
+    this.alertCtrl.create({
+      title: 'Confirmation',
+      message: 'Are you sure you want to delete?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel', handler: () => {
+            console.log('Cancel clicked');
+          }
+        },
+        {
+          text: 'Delete',
+          handler: () => {
+            console.log('Delete clicked');
+
+            //Call API's based on conditions for delete question or answer.
+            question === 'question' ? this.removeQuestion() : this.removeAnswer();
+          }
+        }
+      ]
+    }).present();
+  }
+
+  removeQuestion () {
+    console.log('removed cquestion');
+    // todo: send delete question api call
+  }
+
+  removeAnswer () {
+    console.log('removed answer');
+    // todo: send delete answer api call
+  }
+
 
 }
