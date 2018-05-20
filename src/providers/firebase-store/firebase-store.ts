@@ -118,23 +118,23 @@ export class FirebaseStoreProvider {
     channelId = channelId || this.activeChannelId;
 
     const onChildAdd = (snapshot) => {
-      const questionId = snapshot.key;
       const question = snapshot.val();
 
-      if (question) {
-        onQuestionAdd(questionId, question);
-
-      } else {
-        console.log('subscribePendingQuestions: error Invalid channelId - ');
+      // filter the questions by pending-approval
+      if (question && question.approvedBy === undefined) {
+        onQuestionAdd(question);
       }
     };
 
+    // questions list
+    const channelQuestionsRef = this.refs.channelsRef.child(channelId).child('questions');
+
     // subscribe the questions list
-    this.refs.channelsRef.child(channelId).child('questions').on('child_added', onChildAdd);
+    channelQuestionsRef.on('child_added', onChildAdd);
 
     // returns the detach callback to unSubscribe the list
     return () => {
-      this.refs.channelsRef.child(channelId).child('questions').off('child_added', onChildAdd);
+      channelQuestionsRef.off('child_added', onChildAdd);
     }
   }
 

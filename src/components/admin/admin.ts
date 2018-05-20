@@ -10,10 +10,13 @@ import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-s
 export class AdminComponent implements OnDestroy {
 
   questionsList = [];
+  unSubscribePendingQuestions: Function;
 
   constructor(private firebaseStore: FirebaseStoreProvider, public alertCtrl: AlertController) {
     console.log('Hello AdminComponent Component');
     this.questionsList = this.getQuesionList();
+
+    this.fetchPendingQuestions();
   }
 
   //get list of Farms.
@@ -68,13 +71,17 @@ export class AdminComponent implements OnDestroy {
     return Object.keys(list || {}).length;
   }
 
-  onPendingQuestionAdd(questionId, questionInfo) {
+  onPendingQuestionAdd(question) {
 
+  }
+
+  fetchPendingQuestions() {
+    this.unSubscribePendingQuestions = this.firebaseStore.subscribePendingQuestions(null, this.onPendingQuestionAdd);
   }
 
   ngOnDestroy () {
     console.log('admin: ngOnDestroy');
-    this.firebaseStore.unsubscribePendingQuestions(null, this.onPendingQuestionAdd);
+    this.unSubscribePendingQuestions();
   }
 
 }
