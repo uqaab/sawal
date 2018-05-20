@@ -188,7 +188,7 @@ export class AdminComponent implements OnDestroy {
     this.unSubscribeQuestionsList();
 
     // clear listeners for questions pending approval state
-    for (var questionId in this.dispatchers) {
+    for (let questionId in this.dispatchers) {
       this.dispatchers[questionId]();
     }
   }

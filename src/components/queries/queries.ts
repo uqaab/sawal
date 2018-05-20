@@ -11,13 +11,14 @@ import { UtilProvider } from '../../providers/util/util';
   templateUrl: 'queries.html'
 })
 export class QueriesComponent implements OnDestroy {
-  toggleAnswer: any = {};
+  expandedComments: any = {};
   fetching: boolean = false;
   fetchingError: string;
   waitState: any;
   questions = [];
   unSubscribeQuestionsList: Function;
   dispatchers: any = {};
+  isAdmin: boolean = false;
 
   constructor( private firebaseStore: FirebaseStoreProvider,
                private utilService: UtilProvider,
@@ -26,6 +27,9 @@ export class QueriesComponent implements OnDestroy {
   ) {
     this.checkApprovedQuestionsList();
     this.fetchApprovedQuestions();
+
+    // for now making all users an admin
+    this.isAdmin = true;
   }
 
   // retrieves the count / length of the object
@@ -250,18 +254,22 @@ export class QueriesComponent implements OnDestroy {
       });
   }
 
+  submitComment() {
+    console.log('submitComment');
+  }
+
   // to be invoked when view is about to be destroyed.
   ngOnDestroy() {
     this.unSubscribeQuestionsList();
 
     // clear listeners for questions pending approval state
-    for (var questionId in this.dispatchers) {
+    for (let questionId in this.dispatchers) {
       this.dispatchers[questionId]();
     }
 
     // clear listeners for questions comments list
-    for (var questionId in this.questions) {
-      this.questions[questionId].unSubscribeCommentsList();
+    for (let i = 0; i < this.questions.length; i++) {
+      this.questions[i].unSubscribeCommentsList();
     }
   }
 

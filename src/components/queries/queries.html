@@ -40,8 +40,8 @@
         </button>
       </ion-col>
       <ion-col col-5>
-        <button ion-button icon-left clear small (click)="toggleAnswer['answer_' + i] = !toggleAnswer['answer_' + i]" >
-          <ion-icon [name]="!toggleAnswer['answer_' + i ] ? 'arrow-down' : 'arrow-up'"></ion-icon>
+        <button ion-button icon-left clear small (click)="expandedComments[question.questionId] = !expandedComments[question.questionId]" >
+          <ion-icon [name]="!expandedComments[question.questionId] ? 'arrow-down' : 'arrow-up'"></ion-icon>
           <div><span>{{getCount(question.comments)}}</span> Answers</div>
         </button>
       </ion-col>
@@ -54,7 +54,7 @@
       </ion-col>
     </ion-row>
 
-    <ion-card [hidden]="!toggleAnswer['answer_' + i ]" class="answers-section">
+    <ion-card [hidden]="!expandedComments[question.questionId]" class="answers-section">
       <!-- TODO - should be a separate component -->
       <!-- text box starts - question / comment -->
       <ion-row>
@@ -83,6 +83,21 @@
           </button>
         </ion-col>
       </ion-row>
+    </ion-card>
+
+    <ion-card [hidden]="!(isAdmin && expandedComments[question.questionId])">
+      <ion-grid>
+        <ion-col col-12>
+          <ion-textarea class="question-desc" maxlength="300"
+                        placeholder="Enter your question here..."
+                        [(ngModel)]="questionText" ></ion-textarea>
+
+          <button ion-button full color="secondary" (click)="submitComment()">
+            Answer
+            <ion-spinner *ngIf="registering" name="dots"></ion-spinner>
+          </button>
+        </ion-col>
+      </ion-grid>
     </ion-card>
 
   </ion-card>
