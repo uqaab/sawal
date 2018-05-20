@@ -14,9 +14,9 @@ export class AdminComponent implements OnDestroy {
 
   fetching: boolean = false;
   fetchingError: string;
-  fetchingWait: any;
+  waitState: any;
   questions = [];
-  unSubscribePendingQuestions: Function;
+  unSubscribeQuestionsList: Function;
 
   constructor(
     private firebaseStore: FirebaseStoreProvider,
@@ -28,27 +28,39 @@ export class AdminComponent implements OnDestroy {
     this.fetchPendingQuestions();
   }
 
-  formatDate(timestamp) {
+  formatDate = (timestamp) => {
     return moment(timestamp).fromNow();
+  };
+
+  // filter questions with respect to active filter
+  matchFilter = (question) => {
+    return question && question.approvedBy === undefined;
+  };
+
+  // hides the loading popup, if not hided before.
+  hideWaitScreen() {
+    if (this.waitState) {
+      this.fetching = false;
+      this.waitState.dismiss();
+      this.waitState = null;
+    }
   }
 
   // checks if there is any pending question or empty list.
   checkPendingQuestionsList() {
     this.fetching = true;
-    this.fetchingWait = this.loadingCtrl.create({
+    this.waitState = this.loadingCtrl.create({
       content: 'Loading list...'
     });
 
-    this.fetchingWait.present();
-    this.firebaseStore.hasPendingQuestions()
-      .then(hasPendingItem => {
+    this.waitState.present();
+    this.firebaseStore.hasQuestions(this.matchFilter, null)
+      .then(hasPendingQuestion => {
         //console.log('checkPendingQuestionsList:', hasPendingItem);
 
-        // if no pending questions, then show inform user.
-        if (!hasPendingItem) {
-          this.fetching = false;
-          this.fetchingWait.dismiss();
-          this.fetchingWait = null;
+        // if no pending questions, then inform user.
+        if (!hasPendingQuestion) {
+          this.hideWaitScreen();
           //return;
         }
 
@@ -60,21 +72,7 @@ export class AdminComponent implements OnDestroy {
       });
   }
 
-  // filter questions with respect to active filter
-  matchFilter = (question) => {
-    return question.approvedBy === undefined;
-  };
-
-  // hides the loading popup, if not hided before.
-  hideWaitScreen() {
-    if (this.fetchingWait) {
-      this.fetching = false;
-      this.fetchingWait.dismiss();
-      this.fetchingWait = null;
-    }
-  }
-
-  // subscription - to be invoked on new question add
+  // subscription - to be invoked on new question added
   questionsListOnAdd(question) {
 
     // skip if filter does not match the questions i.e. for type pending-approval
@@ -104,7 +102,8 @@ export class AdminComponent implements OnDestroy {
       onRemove: (questionId) => this.questionsListOnRemove(questionId)
     };
 
-    this.unSubscribePendingQuestions = this.firebaseStore.subscribeChannelQuestions(null, actions, false);
+    // subscribe and keep the dispatcher
+    this.unSubscribeQuestionsList = this.firebaseStore.subscribeChannelQuestions(null, actions);
   }
 
   // marks the question as approved, so that it could be added to the list
@@ -116,7 +115,6 @@ export class AdminComponent implements OnDestroy {
     wait.present();
     this.firebaseStore.approvePendingQuestion(question.questionId)
       .then(() => {
-        //console.log('approvePendingQuestion: success');
         wait.dismiss();
 
         // remove the entry from the list
@@ -179,8 +177,9 @@ export class AdminComponent implements OnDestroy {
       });
   }
 
-  ngOnDestroy () {
-    this.unSubscribePendingQuestions();
+  // to be invoked when view is about to be destroyed.
+  ngOnDestroy() {
+    this.unSubscribeQuestionsList();
   }
 
 }

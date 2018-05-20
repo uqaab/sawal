@@ -112,7 +112,7 @@ export class FirebaseStoreProvider {
   }
 
   // retrieves the channel questions.
-  subscribeChannelQuestions(channelId, actions, monitorApproval) {
+  subscribeChannelQuestions(channelId, actions) {
 
     // by default push the question to active channel
     channelId = channelId || this.activeChannelId;
@@ -120,32 +120,8 @@ export class FirebaseStoreProvider {
     // when a new question gets added to the channel
     const onChannelQuestionAdd = (questionSnapshot) => {
       const questionId = questionSnapshot.key;
-
-      // get question details
-      const getQuestionInfo = () => {
-        this.refs.questionsRef.child(questionId).once('value', (questionInfoSnapshot) => {
-          const question = questionInfoSnapshot.val();
-          actions.onAdd(question);
-          //console.log('onChannelQuestionAdd - add');
-        });
-      };
-
-      // get newly added question details
-      getQuestionInfo();
-
-      // monitor question approval change to add to list. i.e. from pending-approval to approved.
-      if (monitorApproval) {
-        console.log('monitorApproval: monitoring approval for ', questionId);
-        this.refs.questionsRef.child(questionId).child('approvedBy').once('value', (questionSnapshot) => {
-          const approvedBy = questionSnapshot.val();
-
-          // get approved question details to add to the list.
-          if (approvedBy) {
-            console.log('monitorApproval: approved', approvedBy);
-            getQuestionInfo();
-          }
-        });
-      }
+      this.getQuestionInfo(questionId)
+        .then(actions.onAdd);
     };
 
     // when a question gets removed from the channel
@@ -166,6 +142,41 @@ export class FirebaseStoreProvider {
       channelQuestionsRef.off('child_added', onChannelQuestionAdd);
       channelQuestionsRef.off('child_removed', onChannelQuestionRemove);
     }
+  }
+
+  // retrieves the target question details
+  getQuestionInfo(questionId) {
+
+    return new Promise((resolve, reject) => {
+      this.refs.questionsRef.child(questionId).once('value', (snapshot) => {
+          const question = snapshot.val();
+
+          question.questionId = questionId;
+          resolve(question);
+
+          console.log('getQuestionInfo - resolve', questionId);
+        })
+        .catch((error) => {
+          // handle error here.
+          reject(error);
+        });
+    });
+  }
+
+  // monitor question approval change to add to list. i.e. from pending-approval to approved.
+  channelQuestionOnApprove(questionId) {
+    console.log('monitorApproval: monitoring approval for ', questionId);
+    return new Promise( (resolve, reject) => {
+
+      this.refs.questionsRef.child(questionId).child('approvedBy').once('value', (questionSnapshot) => {
+        const approvedBy = questionSnapshot.val();
+
+        // get approved question details to add to the list.
+        if (approvedBy) {
+          console.log('monitorApproval: approved', approvedBy);
+        }
+      });
+    });
   }
 
   // marks the question as approved, so that it could be added to the list
@@ -216,7 +227,7 @@ export class FirebaseStoreProvider {
   }
 
   // retrieves the questions which needs approval
-  hasPendingQuestions(channelId?: string) {
+  hasQuestions(filter: Function, channelId?: string) {
 
     return new Promise((mainResolve, mainReject) => {
 
@@ -228,7 +239,7 @@ export class FirebaseStoreProvider {
       this.refs.channelsRef.child(channelId).child('questions').once('value', snapshot => {
         const questions = snapshot.val();
 
-        // when channel has no questions at all. (of all types) - no pending questions.
+        // when channel has no questions at all. (of all types) - no pending or approved questions.
         if (!questions) {
           mainResolve(false);
           return;
@@ -240,14 +251,14 @@ export class FirebaseStoreProvider {
           let promise = new Promise((resolve) => {
             this.refs.questionsRef.child(questionId).once('value', (questionInfoSnapshot) => {
               const question = questionInfoSnapshot.val();
-              const isTypePending = question && question.approvedBy === undefined;
+              const matchFilter = filter(question);
 
               // if found one, skip waiting for others
-              if (isTypePending) {
+              if (matchFilter) {
                 mainResolve(true);
               }
 
-              resolve(isTypePending);
+              resolve(matchFilter);
             });
           });
 

@@ -10,8 +10,8 @@ import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-s
 })
 export class ChannelPage {
 
-  activeTab: string = "admin";
-  //activeTab: string = "queries";
+  //activeTab: string = "admin";
+  activeTab: string = "queries";
   //activeTab: string = "ask";
   channelProfile: any = {};
   fetching: boolean = false;

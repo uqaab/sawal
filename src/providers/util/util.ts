@@ -11,7 +11,7 @@ import { Injectable } from '@angular/core';
 export class UtilProvider {
 
   constructor(public http: HttpClient) {
-    console.log('Hello UtilProvider Provider');
+
   }
 
   getIndexOf = (items, propName, propValue) => {
