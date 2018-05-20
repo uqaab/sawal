@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AlertController } from 'ionic-angular';
+import * as moment from 'moment';
 
 /**
  * Generated class for the QueriesComponent component.
@@ -15,10 +16,12 @@ export class QueriesComponent {
 
   text: string;
   questionsList: any = [];
+  createdDate: any;
 
   constructor(private alertCtrl: AlertController) {
     console.log('Hello QueriesComponent Component');
     this.text = 'Hello World';
+    this.createdDate = moment().fromNow();
     this.questionsList = this.getQuesionList();
   }
 
