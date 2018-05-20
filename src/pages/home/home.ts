@@ -14,6 +14,7 @@ export class HomePage {
   userName: string;
   newUserName: string;
   channelCode: string;
+  userProfile: any;
   fetching: boolean = false;
   registering: boolean = false;
   joining: boolean = false;
@@ -30,7 +31,7 @@ export class HomePage {
       .then(uuid => {
 
         self.firebaseStore.getUserProfile(uuid)
-          .then(userProfile => {
+          .then((userProfile: any) => {
             self.fetching = false;
 
             // if new user.

@@ -70,7 +70,7 @@ export class FirebaseStoreProvider {
   }
 
   // registers the user against the unique device-id
-  submitQuestion(questionText, channelId) {
+  submitQuestion(questionText, channelId?) {
 
     // by default push the question to active channel
     channelId = channelId || this.activeChannelId;
