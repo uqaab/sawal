@@ -1,6 +1,6 @@
 <!-- Generated template for the QueriesComponent component -->
 <div>
-  <ion-card class="question-card" *ngFor="let question of questionsList">
+  <ion-card class="question-card" *ngFor="let question of questionsList; index as i">
 
     <!-- TODO - should be a separate component -->
     <!-- text box starts - question / comment -->
@@ -31,8 +31,8 @@
         </button>
       </ion-col>
       <ion-col col-5>
-        <button ion-button icon-left clear small>
-          <ion-icon name="arrow-down"></ion-icon>
+        <button ion-button icon-left clear small (click)="toggleAnswer['answer_' + i] = !toggleAnswer['answer_' + i]" >
+          <ion-icon [name]="!toggleAnswer['answer_' + i ] ? 'arrow-down' : 'arrow-up'"></ion-icon>
           <div><span>{{getCount(question.comments)}}</span> Answers</div>
         </button>
       </ion-col>
@@ -45,7 +45,7 @@
       </ion-col>
     </ion-row>
 
-    <ion-card>
+    <ion-card [hidden]="!toggleAnswer['answer_' + i ]" class="answers-section">
       <!-- TODO - should be a separate component -->
       <!-- text box starts - question / comment -->
       <ion-row>

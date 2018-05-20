@@ -17,10 +17,13 @@ export class QueriesComponent {
   text: string;
   questionsList: any = [];
   createdDate: any;
+  showAnswer: any;
+  toggleAnswer: any = {};
 
   constructor(private alertCtrl: AlertController) {
     console.log('Hello QueriesComponent Component');
     this.text = 'Hello World';
+    this.showAnswer = false;
     this.createdDate = moment().fromNow();
     this.questionsList = this.getQuesionList();
   }
