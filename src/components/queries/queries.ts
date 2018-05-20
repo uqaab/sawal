@@ -76,6 +76,48 @@ export class QueriesComponent implements OnDestroy {
       });
   }
 
+  // subscription - to be invoked on new comment is added
+  commentsListOnAdd(comment, questionId) {
+
+    // find the index of target question
+    const questionIndex = this.utilService.getIndexOf(this.questions, 'questionId', questionId);
+
+    if (questionIndex === undefined) {
+      console.warn('commentsListOnAdd: could not find question. already removed ?', questionId);
+      return;
+    }
+
+    const question = this.questions[questionIndex];
+
+    // add new comments into the question comments list.
+    question.comments.push(comment);
+  }
+
+  // subscription - to be invoked on existing comment is removed
+  commentsListOnRemove(commentId, questionId) {
+
+    // find the index of target question
+    const questionIndex = this.utilService.getIndexOf(this.questions, 'questionId', questionId);
+
+    if (questionIndex === undefined) {
+      console.warn('commentsListOnAdd: could not find question. already removed ?', questionId);
+      return;
+    }
+
+    const question = this.questions[questionIndex];
+
+    // find the index of target comment
+    const commentIndex = this.utilService.getIndexOf(question.comments, 'commentId', commentId);
+
+    if (commentIndex === undefined) {
+      console.warn('commentsListOnAdd: could not find comment. already removed ?', commentId);
+      return;
+    }
+
+    // remove the target comment form the question comment list.
+    question.comments.splice(questionIndex, 1);
+  }
+
   // subscription - to be invoked on new question added
   questionsListOnAdd(question) {
 
@@ -90,7 +132,7 @@ export class QueriesComponent implements OnDestroy {
       subscriber.promise
         .then((approvedQuestion) => {
 
-          // question has be approved now
+          // question has been approved now - add it into the list
           this.questionsListOnAdd(approvedQuestion);
 
           // call dispatcher
@@ -106,9 +148,19 @@ export class QueriesComponent implements OnDestroy {
       return;
     }
 
-    // add into the list.
-    this.questions.push(question);
+    // hide the wait screen (if any)
     this.hideWaitScreen();
+
+    // add new question into the questions list.
+    this.questions.push(question);
+
+    const actions = {
+      onAdd: (comment, questionId) => this.commentsListOnAdd(comment, questionId),
+      onRemove: (commentId, questionId) => this.commentsListOnRemove(commentId, questionId)
+    };
+
+    // subscribe to question comments.
+    question.unSubscribeCommentsList = this.firebaseStore.subscribeQuestionComments(null, question.questionId, actions);
   }
 
   // subscription - to be invoked on existing question removed
@@ -118,6 +170,11 @@ export class QueriesComponent implements OnDestroy {
     const questionIndex = this.utilService.getIndexOf(this.questions, 'questionId', questionId);
 
     if (questionIndex !== undefined) {
+      const question = this.questions[questionIndex];
+
+      // dispatch the comments listeners
+      question.unSubscribeCommentsList();
+
       this.questions.splice(questionIndex, 1);
     }
   }
@@ -197,9 +254,14 @@ export class QueriesComponent implements OnDestroy {
   ngOnDestroy() {
     this.unSubscribeQuestionsList();
 
-    // call all the pending approval questions listeners
+    // clear listeners for questions pending approval state
     for (var questionId in this.dispatchers) {
       this.dispatchers[questionId]();
+    }
+
+    // clear listeners for questions comments list
+    for (var questionId in this.questions) {
+      this.questions[questionId].unSubscribeCommentsList();
     }
   }
 

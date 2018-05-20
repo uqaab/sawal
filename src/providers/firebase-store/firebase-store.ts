@@ -37,6 +37,17 @@ export class FirebaseStoreProvider {
     this.firebaseConfig = new FirebaseConfig();
   }
 
+  // always be called whenever a question details in fetched and going to be used in the list.
+  modifyQuestionModel = (question, questionId) => {
+    question.questionId = questionId;
+
+    // placeholders to be filled by their subscriber
+    question.comments = [];
+    question.votes = [];
+
+    return question;
+  };
+
   // main initialization logic - one-time only
   public init () {
     const self = this;
@@ -154,13 +165,48 @@ export class FirebaseStoreProvider {
     }
   }
 
+  // retrieves the questions comments.
+  subscribeQuestionComments(channelId, questionId, actions) {
+
+    // by default push the question to active channel
+    channelId = channelId || this.activeChannelId;
+
+    // when a new question gets added to the channel
+    const onQuestionCommentAdd = (questionSnapshot) => {
+      const questionId = questionSnapshot.key;
+      this.getQuestionInfo(questionId)
+        .then(actions.onAdd);
+    };
+
+    // when a question gets removed from the channel
+    const onQuestionCommentRemove = (questionSnapshot) => {
+      const questionId = questionSnapshot.key;
+      actions.onRemove(questionId);
+    };
+
+    // comments list of the target question.
+    const questionsCommentsRef =
+      this.refs.channelsRef.child(channelId).child('questions').child(questionId).child('comments');
+
+    // subscribe the questions list
+    questionsCommentsRef.on('child_added', onQuestionCommentAdd);
+    questionsCommentsRef.on('child_removed', onQuestionCommentRemove);
+
+    // returns the detach callback to un subscribe the list
+    return () => {
+      questionsCommentsRef.off('child_added', onQuestionCommentAdd);
+      questionsCommentsRef.off('child_removed', onQuestionCommentRemove);
+    }
+  }
+
   // retrieves the target question details
   getQuestionInfo(questionId) {
 
     return new Promise((resolve, reject) => {
+
       this.refs.questionsRef.child(questionId).once('value', (snapshot) => {
           const question = snapshot.val();
-          question.questionId = questionId;
+          this.modifyQuestionModel(question, questionId);
           resolve(question);
         })
         .catch((error) => {
@@ -188,6 +234,7 @@ export class FirebaseStoreProvider {
 
         // get approved question details to add to the list.
         if (question && question.approvedBy) {
+          this.modifyQuestionModel(question, questionId);
           resolve(question);
         }
       };

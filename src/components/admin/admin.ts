@@ -17,6 +17,7 @@ export class AdminComponent implements OnDestroy {
   waitState: any;
   questions = [];
   unSubscribeQuestionsList: Function;
+  dispatchers: any = {};
 
   constructor(
     private firebaseStore: FirebaseStoreProvider,
@@ -82,6 +83,28 @@ export class AdminComponent implements OnDestroy {
 
     this.questions.push(question);
     this.hideWaitScreen();
+
+    // Subscribe to the approval changes (when other admin approves and so updates the question pending state)
+    const subscriber = this.firebaseStore.channelQuestionOnApprove(question.questionId);
+
+    // add dispatcher for onDestroy removal
+    this.dispatchers[question.questionId] = subscriber.dispatcher;
+
+    subscriber.promise
+      .then((approvedQuestion) => {
+
+        // question has been approved now - remove from the list
+        this.questionsListOnRemove(approvedQuestion.questionId);
+
+        // call dispatcher
+        subscriber.dispatcher();
+
+        // remove dispatcher from dispatchers list to avoid duplicate calls
+        delete this.dispatchers[question.questionId];
+      })
+      .catch((error) => {
+        console.log('questionsListOnAdd: monitor approval failed', error);
+      });
   }
 
   // subscription - to be invoked on existing question removed
@@ -163,6 +186,11 @@ export class AdminComponent implements OnDestroy {
   // to be invoked when view is about to be destroyed.
   ngOnDestroy() {
     this.unSubscribeQuestionsList();
+
+    // clear listeners for questions pending approval state
+    for (var questionId in this.dispatchers) {
+      this.dispatchers[questionId]();
+    }
   }
 
 }
