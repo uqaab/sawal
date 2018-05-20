@@ -61,7 +61,6 @@ export class QueriesComponent implements OnDestroy {
     this.waitState.present();
     this.firebaseStore.hasQuestions(this.matchFilter, null)
       .then(hasApprovedQuestion => {
-        //console.log('checkApprovedQuestionsList:', hasPendingItem);
 
         // if no pending questions, then show inform user.
         if (!hasApprovedQuestion) {

@@ -34,7 +34,6 @@ export class FirebaseStoreProvider {
     private uniqueDeviceID: UniqueDeviceID,
     public alertCtrl: AlertController
   ) {
-    console.log('FirebaseStoreProvider');
     this.firebaseConfig = new FirebaseConfig();
   }
 
@@ -69,6 +68,16 @@ export class FirebaseStoreProvider {
       });
   }
 
+  // returns test device-id for development purpose
+  getTestDeviceId = () => {
+    return Promise.resolve('test-device-id');
+  };
+
+  // returns the device id once retrieved already
+  getDeviceId() {
+    return location.hostname === 'localhost' ? this.getTestDeviceId() : this.uniqueDeviceID.get();
+  }
+
   // registers the user against the unique device-id
   submitQuestion(questionText, channelId?) {
 
@@ -90,6 +99,7 @@ export class FirebaseStoreProvider {
       // add into questions namespace
       const questionId: string = this.refs.questionsRef.push().key;
       this.refs.questionsRef.child(questionId).set(question, error => {
+
         if (error) {
           console.log('submitQuestion: questions ref: error - ', error);
           reject('Question submission failed. ' + error);
@@ -101,7 +111,7 @@ export class FirebaseStoreProvider {
             console.log('submitQuestion: channels ref: error - ', error);
             reject('Question submission partially failed. ' + error);
 
-            // revert the above operation.
+            // perhaps revert the above operation ?
           }
           resolve(question);
         });
@@ -150,11 +160,8 @@ export class FirebaseStoreProvider {
     return new Promise((resolve, reject) => {
       this.refs.questionsRef.child(questionId).once('value', (snapshot) => {
           const question = snapshot.val();
-
           question.questionId = questionId;
           resolve(question);
-
-          console.log('getQuestionInfo - resolve', questionId);
         })
         .catch((error) => {
           // handle error here.
@@ -165,7 +172,6 @@ export class FirebaseStoreProvider {
 
   // monitor question approval change to add to list. i.e. from pending-approval to approved.
   channelQuestionOnApprove(questionId) {
-    console.log('monitorApproval: monitoring approval for ', questionId);
 
     let subscriber: any = {};
     const questionRef = this.refs.questionsRef.child(questionId);
@@ -182,12 +188,11 @@ export class FirebaseStoreProvider {
 
         // get approved question details to add to the list.
         if (question && question.approvedBy) {
-          console.log('monitorApproval: approved', question);
           resolve(question);
         }
       };
 
-      // register "on" event
+      // register the "on" event of live sync
       questionRef.on('value', onQuestionUpdate);
     });
 
@@ -234,10 +239,7 @@ export class FirebaseStoreProvider {
         channelId = channelId || this.activeChannelId;
 
         // remove the entry from channel's questions list
-        return this.refs.channelsRef.child(channelId).child('questions').child(questionId).remove()
-          .then(() => {
-            //console.log('removePendingQuestion: channel ref - success');
-          });
+        return this.refs.channelsRef.child(channelId).child('questions').child(questionId).remove();
       });
   }
 
@@ -334,16 +336,6 @@ export class FirebaseStoreProvider {
         reject(error);
       });
     });
-  }
-
-  // returns the device id once retrieved already
-  getDeviceId() {
-    return location.hostname === 'localhost' ? this.getTestDeviceId() : this.uniqueDeviceID.get();
-  }
-
-  // returns test device-id for development purpose
-  getTestDeviceId() {
-    return Promise.resolve('test-device-id');
   }
 
   // returns the uuid - wait for the deviceId promise to be resolved first
