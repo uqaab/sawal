@@ -16,7 +16,9 @@
     <ion-col col-12>
 
       <!-- while busy checking device-id account-->
-      <h4 text-center="" *ngIf="fetching">Please wait a sec...</h4>
+      <h4 text-center="" *ngIf="fetching">
+        <span>Please wait a sec </span> <ion-spinner name="dots"></ion-spinner>
+      </h4>
 
       <!-- user found already-->
       <h4 class="welcome-section" *ngIf="!fetching && userName">Welcome, <strong>{{userName}}</strong> !</h4>
