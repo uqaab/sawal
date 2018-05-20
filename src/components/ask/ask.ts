@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { AlertController } from 'ionic-angular';
 
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
@@ -7,19 +7,16 @@ import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-s
   selector: 'ask',
   templateUrl: 'ask.html'
 })
-export class AskComponent implements OnDestroy {
-
-  text: string;
+export class AskComponent {
   submitting: boolean = false;
   questionText: any = '';
 
   constructor(private firebaseStore: FirebaseStoreProvider, public alertCtrl: AlertController) {
-    console.log('Hello AskComponent Component');
+    //console.log('Hello AskComponent Component');
   }
 
   // submits the question against the selected channel
   submit () {
-    console.log('submit');
     const self = this;
 
     // payload validation
@@ -57,9 +54,5 @@ export class AskComponent implements OnDestroy {
         }).present();
       });
 
-  }
-
-  ngOnDestroy () {
-    console.log('~~destrying')
   }
 }

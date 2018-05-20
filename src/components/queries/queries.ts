@@ -1,30 +1,17 @@
 import { Component } from '@angular/core';
 import { AlertController, LoadingController } from 'ionic-angular';
+
 import * as moment from 'moment';
 
-/**
- * Generated class for the QueriesComponent component.
- *
- * See https://angular.io/api/core/Component for more info on Angular
- * Components.
- */
 @Component({
   selector: 'queries',
   templateUrl: 'queries.html'
 })
 export class QueriesComponent {
-
-  text: string;
-  questionsList: any = [];
-  createdDate: any;
-  showAnswer: any;
   toggleAnswer: any = {};
+  questionsList: any = [];
 
   constructor(private alertCtrl: AlertController, public loadingCtrl: LoadingController) {
-    console.log('Hello QueriesComponent Component');
-    this.text = 'Hello World';
-    this.showAnswer = false;
-    this.createdDate = moment().fromNow();
     this.questionsList = this.getQuesionList();
     this.startLoading();
   }
@@ -119,12 +106,12 @@ export class QueriesComponent {
   }
 
   removeQuestion () {
-    console.log('removed cquestion');
+    console.log('removeQuestion');
     // todo: send delete question api call
   }
 
   removeAnswer () {
-    console.log('removed answer');
+    console.log('removeAnswer');
     // todo: send delete answer api call
   }
 

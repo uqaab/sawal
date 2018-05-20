@@ -1,5 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
-import { AlertController } from 'ionic-angular';
+import { AlertController, LoadingController } from 'ionic-angular';
+
+import * as moment from 'moment';
 
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
 
@@ -11,22 +13,31 @@ export class AdminComponent implements OnDestroy {
 
   fetching: boolean = false;
   fetchingError: string;
+  fetchingWait: any;
   questions = [];
   unSubscribePendingQuestions: Function;
 
-  constructor(private firebaseStore: FirebaseStoreProvider, public alertCtrl: AlertController) {
+  constructor(
+    private firebaseStore: FirebaseStoreProvider,
+    public alertCtrl: AlertController,
+    public loadingCtrl: LoadingController
+  ) {
     this.checkPendingQuestionsList();
     this.fetchPendingQuestions();
   }
 
-  // retrieves the count / length of the object
-  getCount(list) {
-    return Object.keys(list || {}).length;
+  formatDate(timestamp) {
+    return moment(timestamp).fromNow();
   }
 
   // checks if there is any pending question or empty list.
   checkPendingQuestionsList() {
     this.fetching = true;
+    this.fetchingWait = this.loadingCtrl.create({
+      content: 'Loading list...'
+    });
+
+    this.fetchingWait.present();
     this.firebaseStore.hasPendingQuestions()
       .then(hasPendingItem => {
         //console.log('checkPendingQuestionsList:', hasPendingItem);
@@ -34,6 +45,8 @@ export class AdminComponent implements OnDestroy {
         // if no pending questions, then show inform user.
         if (!hasPendingItem) {
           this.fetching = false;
+          this.fetchingWait.dismiss();
+          this.fetchingWait = null;
           //return;
         }
 
@@ -53,8 +66,84 @@ export class AdminComponent implements OnDestroy {
       self.questions.push(question);
 
       // hide wait screen if left activated
-      this.fetching = false;
+      if (this.fetchingWait) {
+        this.fetching = false;
+        this.fetchingWait.dismiss();
+        this.fetchingWait = null;
+      }
     });
+  }
+
+  // marks the question as approved, so that it could be added to the list
+  approvePendingQuestion(question, index) {
+    const wait = this.loadingCtrl.create({
+      content: 'Please give us a moment...'
+    });
+
+    wait.present();
+    this.firebaseStore.approvePendingQuestion(question.questionId)
+      .then(() => {
+        //console.log('approvePendingQuestion: success');
+        wait.dismiss();
+
+        // remove the entry from the list
+        this.questions.splice(index, 1);
+      })
+      .catch(error => {
+
+        this.alertCtrl.create({
+          title: 'Error',
+          subTitle: error,
+          buttons: ['OK']
+        }).present();
+      });
+  }
+
+  // asks user to confirm, then it removes the selected question.
+  removePendingQuestion(question, index) {
+
+    // ask for confirmation first
+    this.alertCtrl.create({
+      title: 'Confirmation',
+      message: 'Are you sure you want to delete ?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Delete',
+          handler: () => {
+            this.removePendingQuestionConfirm(question, index);
+          }
+        }
+      ]
+    }).present();
+  }
+
+  // removes the selected question from the channels list and questions list as well.
+  removePendingQuestionConfirm(question, index) {
+    const wait = this.loadingCtrl.create({
+      content: 'Please give us a moment...'
+    });
+
+    wait.present();
+    this.firebaseStore.removePendingQuestion(question.questionId)
+      .then(() => {
+        //console.log('approvePendingQuestion: success');
+        wait.dismiss();
+
+        // remove the entry from the list
+        this.questions.splice(index, 1);
+      })
+      .catch(error => {
+
+        this.alertCtrl.create({
+          title: 'Error',
+          subTitle: error,
+          buttons: ['OK']
+        }).present();
+      });
   }
 
   ngOnDestroy () {

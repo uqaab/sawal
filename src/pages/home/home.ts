@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
-import { AlertController } from 'ionic-angular';
+import { NavController, AlertController } from 'ionic-angular';
 
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
 import { ChannelPage } from '../channel/channel';
@@ -14,7 +13,6 @@ export class HomePage {
   userName: string;
   newUserName: string;
   channelCode: string;
-  userProfile: any;
   fetching: boolean = false;
   registering: boolean = false;
   joining: boolean = false;
@@ -36,11 +34,11 @@ export class HomePage {
 
             // if new user.
             if (userProfile === null) {
-              console.log('new user');
+              //console.log('new user');
               // if device has been registered previously
             } else {
               self.userName = userProfile.name;
-              console.log('existing user', self.userName);
+              //console.log('existing user', self.userName);
             }
           })
           .catch(error => {

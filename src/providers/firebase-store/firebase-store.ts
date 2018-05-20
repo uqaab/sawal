@@ -126,6 +126,7 @@ export class FirebaseStoreProvider {
 
         // filter the questions by pending-approval
         if (question && question.approvedBy === undefined) {
+          question.questionId = questionId;
           onQuestionAdd(question);
         }
       });
@@ -141,6 +142,53 @@ export class FirebaseStoreProvider {
     return () => {
       channelQuestionsRef.off('child_added', onChannelQuestionAdd);
     }
+  }
+
+  // marks the question as approved, so that it could be added to the list
+  approvePendingQuestion(questionId) {
+
+    return new Promise((resolve, reject) => {
+
+      // set approvedOn info
+      this.refs.questionsRef.child(questionId).child('approvedOn').set(Date.now(), error => {
+        const errorMessage = 'Question approval failed.';
+
+        if (error) {
+          console.log('approvePendingQuestion: approvedOn error - ', error);
+          reject(errorMessage);
+        }
+
+        // set approvedBy info.
+        this.refs.questionsRef.child(questionId).child('approvedBy').set(this.deviceId, error => {
+
+          if (error) {
+            console.log('approvePendingQuestion: approvedBy error - ', error);
+            reject(errorMessage);
+          }
+
+          // consider the task resolved.
+          resolve();
+        });
+      });
+    });
+  }
+
+  // removes the selected question from the channels list and questions list as well.
+  removePendingQuestion(questionId, channelId?) {
+
+    // remove the entry from questions list
+    return this.refs.questionsRef.child(questionId).remove()
+      .then(()=> {
+
+        // by default push the question to active channel
+        channelId = channelId || this.activeChannelId;
+
+        // remove the entry from channel's questions list
+        return this.refs.channelsRef.child(channelId).child('questions').child(questionId).remove()
+          .then(() => {
+            //console.log('removePendingQuestion: channel ref - success');
+          });
+      });
   }
 
   // retrieves the questions which needs approval

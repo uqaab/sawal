@@ -39,8 +39,4 @@ export class ChannelPage {
     });
   }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad ChannelPage');
-  }
-
 }
