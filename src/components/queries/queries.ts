@@ -31,12 +31,14 @@ export class QueriesComponent {
 
   startLoading () {
     let loading = this.loadingCtrl.create({
-      content: 'Please wait...'
-    }).present();
+      content: 'Loading Questions...'
+    });
+
+    loading.present();
 
     setTimeout(() => {
       loading.dismiss();
-    }, 2000);
+    }, 1000);
   }
 
   //get list of Farms.
