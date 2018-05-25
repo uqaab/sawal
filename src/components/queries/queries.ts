@@ -164,7 +164,7 @@ export class QueriesComponent implements OnDestroy {
     };
 
     // subscribe to question comments.
-    question.unSubscribeCommentsList = this.firebaseStore.subscribeQuestionComments(null, question.questionId, actions);
+    question.unSubscribeCommentsList = this.firebaseStore.subscribeQuestionComments(question.questionId, actions);
   }
 
   // subscription - to be invoked on existing question removed
@@ -254,8 +254,44 @@ export class QueriesComponent implements OnDestroy {
       });
   }
 
-  submitComment() {
+  submitComment(question) {
     console.log('submitComment');
+
+    // payload validation
+    if (!question.newCommentText || question.newCommentText.length > 5000 || question.newCommentText.length < 10) {
+
+      this.alertCtrl.create({
+        title: 'Error',
+        subTitle: 'Answer text can be minimum 10 characters and maximum 5000 characters.',
+        buttons: ['Try Again']
+      }).present();
+
+      return;
+    }
+
+    question.commenting = true;
+    this.firebaseStore.submitComment(question.newCommentText, question.questionId)
+      .then(() => {
+        question.commenting = false;
+        question.showCommentBox = false;
+        question.newCommentText = '';
+
+        this.alertCtrl.create({
+          title: 'Successful !',
+          subTitle: 'Your answer has been submitted successfully.',
+          buttons: ['OK']
+        }).present();
+
+      })
+      .catch(error => {
+        question.commenting = false;
+
+        this.alertCtrl.create({
+          title: 'Error',
+          subTitle: error,
+          buttons: ['OK']
+        }).present();
+      });
   }
 
   // to be invoked when view is about to be destroyed.

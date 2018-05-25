@@ -132,6 +132,42 @@ export class FirebaseStoreProvider {
     });
   }
 
+  // registers the user against the unique device-id
+  submitComment(commentText, questionId) {
+
+    return new Promise((resolve, reject) => {
+      let comment = {
+        text: commentText,
+        commentedBy: this.deviceId,
+        commentedOn: Date.now(),
+      };
+
+      // add comment entry into comments namespace
+      const commentId: string = this.refs.commentsRef.push().key;
+      this.refs.commentsRef.child(commentId).set(comment, error => {
+
+        if (error) {
+          console.log('submitComment: comments ref: error - ', error);
+          reject('Comment submission failed. ' + error);
+        }
+
+        // add comment entry into question's comments list.
+        this.refs.questionsRef.child(questionId)
+          .child('comments').child(commentId)
+          .set(true, error => {
+            if (error) {
+              console.log('submitComment: channels ref: error - ', error);
+              reject('Comment submission partially failed. ' + error);
+
+              // perhaps revert the above operation ?
+            }
+
+            resolve(comment);
+          });
+      });
+    });
+  }
+
   // retrieves the channel questions.
   subscribeChannelQuestions(channelId, actions) {
 
@@ -166,27 +202,28 @@ export class FirebaseStoreProvider {
   }
 
   // retrieves the questions comments.
-  subscribeQuestionComments(channelId, questionId, actions) {
-
-    // by default push the question to active channel
-    channelId = channelId || this.activeChannelId;
+  subscribeQuestionComments(questionId, actions) {
 
     // when a new question gets added to the channel
-    const onQuestionCommentAdd = (questionSnapshot) => {
-      const questionId = questionSnapshot.key;
-      this.getQuestionInfo(questionId)
-        .then(actions.onAdd);
+    const onQuestionCommentAdd = (commentSnapshot) => {
+      const commentId = commentSnapshot.key;
+      this.getCommentInfo(commentId)
+        .then(comment => {
+          actions.onAdd(comment, questionId);
+        })
+        .catch(error => {
+          console.log('onQuestionCommentAdd: error - ', error);
+        });
     };
 
     // when a question gets removed from the channel
-    const onQuestionCommentRemove = (questionSnapshot) => {
-      const questionId = questionSnapshot.key;
-      actions.onRemove(questionId);
+    const onQuestionCommentRemove = (commentSnapshot) => {
+      const commentId = commentSnapshot.key;
+      actions.onRemove(commentId, questionId);
     };
 
     // comments list of the target question.
-    const questionsCommentsRef =
-      this.refs.channelsRef.child(channelId).child('questions').child(questionId).child('comments');
+    const questionsCommentsRef = this.refs.questionsRef.child(questionId).child('comments');
 
     // subscribe the questions list
     questionsCommentsRef.on('child_added', onQuestionCommentAdd);
@@ -206,8 +243,34 @@ export class FirebaseStoreProvider {
 
       this.refs.questionsRef.child(questionId).once('value', (snapshot) => {
           const question = snapshot.val();
-          this.modifyQuestionModel(question, questionId);
-          resolve(question);
+          if (question) {
+            this.modifyQuestionModel(question, questionId);
+            resolve(question);
+          } else {
+            console.log('getQuestionInfo: null - invalid questionId');
+            reject('invalid questionId');
+          }
+        })
+        .catch((error) => {
+          // handle error here.
+          reject(error);
+        });
+    });
+  }
+
+  // retrieves the target question details
+  getCommentInfo(commentId) {
+
+    return new Promise((resolve, reject) => {
+
+      this.refs.commentsRef.child(commentId).once('value', (snapshot) => {
+          const comment = snapshot.val();
+          if (comment) {
+            resolve(comment);
+          } else {
+            console.log('getCommentInfo: null - invalid commentId');
+            reject('invalid commentId');
+          }
         })
         .catch((error) => {
           // handle error here.

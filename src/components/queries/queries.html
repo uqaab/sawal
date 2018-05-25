@@ -9,7 +9,7 @@
 
 <div *ngIf="questions.length">
   <h5 text-center><span>{{questions.length}}</span> questions.</h5>
-  <ion-card class="question-card" *ngFor="let question of questions; let i = index;">
+  <ion-card class="question-card" *ngFor="let question of questions;">
 
     <!-- TODO - should be a separate component -->
     <!-- text box starts - question / comment -->
@@ -20,8 +20,8 @@
         </button>
       </ion-col>
       <ion-col center text-right>
-        <ion-note class="timestamp">  <!--TODO use moment-->
-          {{this.createdDate}}
+        <ion-note class="timestamp">
+          {{formatDate(question.askedOn)}}
         </ion-note>
       </ion-col>
     </ion-row>
@@ -36,13 +36,13 @@
       <ion-col col-5>
         <button ion-button icon-left clear small>
           <ion-icon name="thumbs-up-outline"></ion-icon>
-          <div><span>{{getCount(question.votes)}}</span> Votes</div>
+          <div><span>{{question.votes.length}}</span> Votes</div>
         </button>
       </ion-col>
       <ion-col col-5>
         <button ion-button icon-left clear small (click)="expandedComments[question.questionId] = !expandedComments[question.questionId]" >
-          <ion-icon [name]="!expandedComments[question.questionId] ? 'arrow-down' : 'arrow-up'"></ion-icon>
-          <div><span>{{getCount(question.comments)}}</span> Answers</div>
+          <ion-icon [hidden]="!question.comments.length" [name]="!expandedComments[question.questionId] ? 'arrow-down' : 'arrow-up'"></ion-icon>
+          <div><span>{{question.comments.length}}</span> Answers</div>
         </button>
       </ion-col>
       <ion-col col-2>
@@ -54,49 +54,75 @@
       </ion-col>
     </ion-row>
 
-    <ion-card [hidden]="!expandedComments[question.questionId]" class="answers-section">
-      <!-- TODO - should be a separate component -->
-      <!-- text box starts - question / comment -->
-      <ion-row>
-        <ion-col>
-          <button ion-button icon-left clear small>
-            <div>{{question.askedBy}}</div> <!--TODO async load the full name-->
-          </button>
-        </ion-col>
-        <ion-col center text-right>
-          <ion-note class="timestamp">  <!--TODO use moment-->
-            11h ago
-          </ion-note>
-        </ion-col>
-      </ion-row>
+    <div [hidden]="!expandedComments[question.questionId]" class="answers-section">
 
-      <ion-card-content>
-        <p>This is first answer to the above question.</p>
-      </ion-card-content>
-      <!-- text box ends - question / comment -->
+      <ion-card *ngFor="let comment of question.comments;">
 
-      <!-- controls -->
-      <ion-row>
-        <ion-col text-right>
-          <button ion-button outline small color="danger" (click)="removeComment(question.questionId, comment.commentId)">
-            <ion-icon name="trash"></ion-icon>
-          </button>
-        </ion-col>
-      </ion-row>
+        <!-- TODO - should be a separate component -->
+        <!-- text box starts - question / comment -->
+        <ion-row>
+          <ion-col>
+            <button ion-button icon-left clear small>
+              <div>{{comment.commentedBy}}</div> <!--TODO async load the full name-->
+            </button>
+          </ion-col>
+          <ion-col center text-right>
+            <ion-note class="timestamp">  <!--TODO use moment-->
+              {{formatDate(comment.commentedOn)}}
+            </ion-note>
+          </ion-col>
+        </ion-row>
+
+        <ion-card-content>
+          <p>{{comment.text}}</p>
+        </ion-card-content>
+        <!-- text box ends - question / comment -->
+
+        <!-- controls -->
+        <ion-row>
+          <ion-col text-right>
+            <button ion-button outline small color="danger" (click)="removeComment(question.questionId, comment.commentId)">
+              <ion-icon name="trash"></ion-icon>
+            </button>
+          </ion-col>
+        </ion-row>
+      </ion-card>
+
+    </div>
+
+    <!-- for Admin only -->
+    <ion-card [hidden]="!isAdmin || question.showCommentBox">
+      <button ion-button full color="secondary" (click)="question.showCommentBox = true;">Answer</button>
     </ion-card>
 
-    <ion-card [hidden]="!(isAdmin && expandedComments[question.questionId])">
+    <!-- for Admin only -->
+    <!-- TODO refactor to a separate component -->
+    <ion-card *ngIf="question.showCommentBox">
       <ion-grid>
-        <ion-col col-12>
-          <ion-textarea class="question-desc" maxlength="300"
-                        placeholder="Enter your question here..."
-                        [(ngModel)]="questionText" ></ion-textarea>
-
-          <button ion-button full color="secondary" (click)="submitComment()">
-            Answer
-            <ion-spinner *ngIf="registering" name="dots"></ion-spinner>
-          </button>
-        </ion-col>
+        <ion-row>
+          <ion-col col-12>
+          <textarea class="text-box" maxlength="5000"
+                    placeholder="Enter your answer here..."
+                    [(ngModel)]="question.newCommentText" ></textarea>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col col-6>
+            <button ion-button block="true" color="danger"
+                    [disabled]="!question.newCommentText || question.commenting"
+                    (click)="submitComment(question)">
+              Cancel
+            </button>
+          </ion-col>
+          <ion-col col-6>
+            <button ion-button block="true" color="secondary"
+                    [disabled]="!question.newCommentText || question.commenting"
+                    (click)="submitComment(question)">
+              Submit
+              <ion-spinner *ngIf="question.commenting" name="dots"></ion-spinner>
+            </button>
+          </ion-col>
+        </ion-row>
       </ion-grid>
     </ion-card>
 
