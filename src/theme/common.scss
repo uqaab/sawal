@@ -1,0 +1,14 @@
+.text-box {
+  resize: none;
+  height: 200px;
+  border: 1px solid gray;
+  margin: 0;
+  width: 100%;
+  padding: 10px;
+}
+body ion-card{
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+}
