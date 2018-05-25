@@ -21,7 +21,7 @@ export class AskComponent {
     const self = this;
 
     // payload validation
-    if (!this.questionText || this.questionText.length > 300 || this.questionText.length < 10) {
+    if (!this.questionText || this.questionText.length < 10) {
 
       this.alertCtrl.create({
         title: 'Error',

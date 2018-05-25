@@ -255,10 +255,9 @@ export class QueriesComponent implements OnDestroy {
   }
 
   submitComment(question) {
-    console.log('submitComment');
 
     // payload validation
-    if (!question.newCommentText || question.newCommentText.length > 5000 || question.newCommentText.length < 10) {
+    if (!question.newCommentText || question.newCommentText.length < 10) {
 
       this.alertCtrl.create({
         title: 'Error',
