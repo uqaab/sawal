@@ -44,6 +44,7 @@ export class FirebaseStoreProvider {
     // placeholders to be filled by their subscriber
     question.comments = [];
     question.votes = [];
+    question.askedByName = '';
 
     return question;
   };
@@ -178,7 +179,22 @@ export class FirebaseStoreProvider {
     const onChannelQuestionAdd = (questionSnapshot) => {
       const questionId = questionSnapshot.key;
       this.getQuestionInfo(questionId)
-        .then(actions.onAdd);
+        .then((question: any) => {
+          actions.onAdd(question);
+
+          // get the name of the user using the field askedBy
+          this.getUserProfile(question.askedBy)
+          .then((user: any) => {
+            question.askedByName = user ? user.name : question.askedBy;
+          })
+          .catch(error => {
+            console.log('onChannelQuestionAdd - could not get user name against askedBy field value.', error);
+          });
+
+        })
+        .catch(error => {
+          console.log('onChannelQuestionAdd: error - ', error);
+        });
     };
 
     // when a question gets removed from the channel
@@ -208,8 +224,17 @@ export class FirebaseStoreProvider {
     const onQuestionCommentAdd = (commentSnapshot) => {
       const commentId = commentSnapshot.key;
       this.getCommentInfo(commentId)
-        .then(comment => {
+        .then((comment: any) => {
           actions.onAdd(comment, questionId);
+
+          // get the name of the user using the field askedBy
+          this.getUserProfile(comment.commentedBy)
+            .then((user: any) => {
+              comment.commentedByName = user ? user.name : comment.commentedBy;
+            })
+            .catch(error => {
+              console.log('onChannelQuestionAdd - could not get user name against commentedBy field value.', error);
+            });
         })
         .catch(error => {
           console.log('onQuestionCommentAdd: error - ', error);
