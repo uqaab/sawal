@@ -25,7 +25,7 @@ export class AskComponent {
 
       this.alertCtrl.create({
         title: 'Error',
-        subTitle: 'Question text characters limit is <br> min = 10, and max = 300.',
+        subTitle: 'Question text can be minimum 10 characters and maximum 5000 characters.',
         buttons: ['Try Again']
       }).present();
 
