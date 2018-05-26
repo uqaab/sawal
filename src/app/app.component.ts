@@ -15,8 +15,8 @@ import { FirebaseStoreProvider } from '../providers/firebase-store/firebase-stor
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
-  //rootPage: any = ChannelPage;
-   rootPage: any = HomePage;
+  // rootPage: any = ChannelPage;
+  rootPage: any = HomePage;
 
   pages: Array<{title: string, component: any}>;
 

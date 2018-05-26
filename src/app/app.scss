@@ -33,4 +33,10 @@ body, ion-app.ios {
     margin-top: 10px;
     padding-right: 5px;
   }
+  ion-title {
+    text-align: center !important;
+    .toolbar-title {
+      text-align: center !important;
+    }
+  }
 }
