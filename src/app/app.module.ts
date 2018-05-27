@@ -6,7 +6,7 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { ChannelPage } from '../pages/channel/channel';
-import { ListPage } from '../pages/list/list';
+import { AboutUsPage } from '../pages/about-us/about-us';
 
 import { AdminComponent } from '../components/admin/admin';
 import { AskComponent } from '../components/ask/ask';
@@ -25,7 +25,7 @@ import { UtilProvider } from '../providers/util/util';
     MyApp,
     HomePage,
     ChannelPage,
-    ListPage,
+    AboutUsPage,
     AdminComponent,
     AskComponent,
     QueriesComponent
@@ -40,7 +40,7 @@ import { UtilProvider } from '../providers/util/util';
     MyApp,
     HomePage,
     ChannelPage,
-    ListPage,
+    AboutUsPage,
     AdminComponent,
     AskComponent,
     QueriesComponent
