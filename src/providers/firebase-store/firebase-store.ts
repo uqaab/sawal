@@ -1,9 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+
 import { AlertController } from 'ionic-angular';
+import { UniqueDeviceID } from '@ionic-native/unique-device-id';
 
 import * as firebase from 'firebase';
-import { UniqueDeviceID } from '@ionic-native/unique-device-id';
+import CryptoAES from '../../../node_modules/crypto-js/aes';
 
 interface IRefs {
   channelsCodeRef?: any;
@@ -29,6 +31,7 @@ export class FirebaseStoreProvider {
   activeChannelId: string = '123123123';
   deviceId: string;
   deviceIdPromise: any;
+  encryptionKey: string = 'myAmazingSawalApp';
   constructor(
     public http: HttpClient,
     private uniqueDeviceID: UniqueDeviceID,
@@ -49,6 +52,10 @@ export class FirebaseStoreProvider {
     return question;
   };
 
+  public encryptString: (str:string) => string = (str) => {
+    return CryptoAES.encrypt(str, this.encryptionKey).toString();
+  };
+
   // main initialization logic - one-time only
   public init () {
 
@@ -58,7 +65,12 @@ export class FirebaseStoreProvider {
     this.deviceIdPromise
       .then((uuid: any) => {
         console.log('uuid', uuid);
-        this.deviceId = uuid.substring(uuid.length - 16 - 1); // 16 IMEI plus 1 for "-"
+
+        let userID = uuid.substring(uuid.length - 16 - 1); // 16 IMEI plus 1 for "-"
+        userID = this.encryptString(userID);
+        console.log('userID', userID);
+
+        this.deviceId = userID;
 
         // this.alertCtrl.create({
         //   title: 'Device ID',
