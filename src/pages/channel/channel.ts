@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams } from 'ionic-angular';
 
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
 
@@ -15,11 +15,16 @@ export class ChannelPage {
   //activeTab: string = "ask";
   channelProfile: any = {};
   fetching: boolean = false;
+  isAdmin: boolean = false;
 
   constructor(
     public navCtrl: NavController,
+    public navParams: NavParams,
     private firebaseStore: FirebaseStoreProvider
   ) {
+    console.log('navCtrl', navCtrl);
+    console.log('navParams', navParams);
+    this.isAdmin = navParams.data.isAdmin;
     this.fetchChannelProfile();
   }
 

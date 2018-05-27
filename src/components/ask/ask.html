@@ -2,14 +2,19 @@
 <div>
   <h3>Type and click Submit.</h3>
   <p>Your question will be published once Admin approves it.</p>
-  <textarea class="text-box" maxlength="300"
-            placeholder="Enter your question here..."
-            [(ngModel)]="questionText"></textarea>
 
-  <button ion-button full color="secondary"
-          [disabled]="!questionText"
-          (click)="submit()">
-    Submit
-    <ion-spinner *ngIf="registering" name="dots"></ion-spinner>
-  </button>
+  <form (submit)="submit()">
+
+    <textarea class="text-box" maxlength="300"
+              name="questionText"
+              placeholder="Enter your question here..."
+              [(ngModel)]="questionText"></textarea>
+
+    <button ion-button full color="secondary"
+            [disabled]="!questionText || submitting">
+      Submit
+      <ion-spinner *ngIf="submitting" name="dots"></ion-spinner>
+    </button>
+
+  </form>
 </div>

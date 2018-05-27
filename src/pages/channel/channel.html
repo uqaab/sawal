@@ -8,7 +8,7 @@
 
   <ion-toolbar no-border-top>
     <ion-segment [(ngModel)]="activeTab">
-      <ion-segment-button value="admin">
+      <ion-segment-button value="admin" *ngIf="isAdmin">
         Admin
       </ion-segment-button>
       <ion-segment-button value="queries">

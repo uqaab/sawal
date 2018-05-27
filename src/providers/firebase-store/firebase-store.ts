@@ -526,17 +526,34 @@ export class FirebaseStoreProvider {
   }
 
   // registers the user against the unique device-id
-  getChannelCode(channelCode) {
+  validateChannelCodes(payload) {
 
     return new Promise((resolve, reject) => {
 
-      this.refs.channelsCodeRef.child(channelCode).once('value', snapshot => {
+      this.refs.channelsCodeRef.child(payload.channelCode).once('value', snapshot => {
         const channelId = snapshot.val();
 
         // if valid code then we get the channelId
         if (channelId) {
-          resolve(channelId);
 
+          // check if admin access is requested
+          if (payload.accessType === 'admin') {
+
+            this.refs.channelsRef.child(channelId).once('value', snapshot => {
+              const channelProfile = snapshot.val();
+
+              // check if admin PIN matches
+              if (channelProfile.adminPIN === payload.adminPIN) {
+                resolve(channelId);
+
+              } else {
+                reject('Invalid Admin PIN - please get one from the channel admin.');
+              }
+            });
+
+          } else {
+            resolve(channelId);
+          }
         } else {
           reject('Invalid channel code - please get one from the channel admin.');
         }

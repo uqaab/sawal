@@ -4,6 +4,11 @@ import { NavController, AlertController } from 'ionic-angular';
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
 import { ChannelPage } from '../channel/channel';
 
+interface IChannelData{
+  accessType?: string;
+  channelCode?: number;
+  adminPIN?: number;
+}
 
 @Component({
   selector: 'page-home',
@@ -12,7 +17,7 @@ import { ChannelPage } from '../channel/channel';
 export class HomePage {
   userName: string;
   newUserName: string;
-  channelCode: string;
+  channelData: IChannelData = {accessType: 'user'};
   fetching: boolean = false;
   registering: boolean = false;
   joining: boolean = false;
@@ -53,14 +58,25 @@ export class HomePage {
   }
 
   // registers the new user
-  registerUser() {
-    const self = this;
+  registerUser($event) {
 
-    self.registering = true;
+    $event.preventDefault();
+
+    // validate channel code
+    if (!this.newUserName) {
+
+      return this.alertCtrl.create({
+        title: 'Error',
+        subTitle: 'Please enter your name.',
+        buttons: ['OK']
+      }).present();
+    }
+
+    this.registering = true;
     this.firebaseStore.registerUser(this.newUserName)
       .then(() => {
-        self.registering = false;
-        self.userName = this.newUserName;
+        this.registering = false;
+        this.userName = this.newUserName;
 
         this.alertCtrl.create({
           title: 'Successful !',
@@ -69,38 +85,62 @@ export class HomePage {
         }).present();
       })
       .catch(error => {
-        self.registering = false;
+        this.registering = false;
 
         this.alertCtrl.create({
           title: 'Error',
           subTitle: error,
-          buttons: ['Try Again']
+          buttons: ['OK']
         }).present();
       });
   }
 
   // attempts to join the channel
-  joinChannel() {
-    const self = this;
+  joinChannel($event) {
+    const isAdminAccess = this.channelData.accessType === 'admin';
 
-    self.joining = true;
-    this.firebaseStore.getChannelCode(this.channelCode)
+    $event.preventDefault();
+
+    // validate channel code
+    if (!this.channelData.channelCode) {
+
+      return this.alertCtrl.create({
+        title: 'Error',
+        subTitle: 'Please enter channel code',
+        buttons: ['OK']
+      }).present();
+    }
+
+    // validate admin code if admin access requested
+    if (isAdminAccess && !this.channelData.adminPIN) {
+
+      return this.alertCtrl.create({
+        title: 'Error',
+        subTitle: 'Please enter Admin code',
+        buttons: ['OK']
+      }).present();
+    }
+
+    this.joining = true;
+    this.firebaseStore.validateChannelCodes(this.channelData)
       .then((channelId) => {
-        self.joining = false;
+        this.joining = false;
 
         // remember the channelId
         this.firebaseStore.setActiveChannelId(channelId);
 
         // navigate to channel page
-        this.navCtrl.setRoot(ChannelPage);
+        this.navCtrl.push(ChannelPage, {
+          isAdmin: isAdminAccess
+        });
       })
       .catch(error => {
-        self.joining = false;
+        this.joining = false;
 
         this.alertCtrl.create({
           title: 'Error',
           subTitle: error,
-          buttons: ['Try Again']
+          buttons: ['OK']
         }).present();
       });
   }

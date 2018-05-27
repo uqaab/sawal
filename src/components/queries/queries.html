@@ -8,7 +8,7 @@
 <h5 *ngIf="!questions.length && !fetching && !fetchingErr" text-center>No questions yet !</h5>
 
 <div *ngIf="questions.length">
-  <h5 text-center><span>{{questions.length}}</span> questions.</h5>
+  <h5 text-center>Total Questions: <span>{{questions.length}}</span></h5>
   <ion-card class="question-card" *ngFor="let question of questions;">
 
     <!-- TODO - should be a separate component -->
@@ -109,8 +109,7 @@
         <ion-row>
           <ion-col col-6>
             <button ion-button block="true" color="danger"
-                    [disabled]="!question.newCommentText || question.commenting"
-                    (click)="submitComment(question)">
+                    (click)="question.showCommentBox = false;">
               Cancel
             </button>
           </ion-col>

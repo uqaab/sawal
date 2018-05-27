@@ -9,7 +9,7 @@
 <h5 *ngIf="!questions.length && !fetching && !fetchingErr" text-center>No pending requests</h5>
 
 <div *ngIf="questions.length">
-  <h5 text-center><span>{{questions.length}}</span> pending requests</h5>
+  <h5 text-center>Total Requests: <span>{{questions.length}}</span></h5>
   <ion-card class="question-card" *ngFor="let question of questions; let i = index;">
 
     <!-- TODO - should be a separate component -->

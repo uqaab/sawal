@@ -1,4 +1,7 @@
 page-home {
+  ion-select{
+    max-width: initial;
+  }
   .welcome-section{
     margin-bottom: 15px;
     text-align: center;
@@ -13,5 +16,11 @@ page-home {
     ion-item{
       border-top: none !important;
     }
+  }
+  .app-banner{
+    position: absolute;
+    left: 0;
+    top: 220px;
+    text-align: center;
   }
 }
