@@ -29,7 +29,7 @@ export class FirebaseStoreProvider {
   firebaseConfig: FirebaseConfig;
   activeChannelId: string = '123123123';
   deviceId: string;
-  encryptionKey: string = 'myAmazingSawalApp';
+  getDeviceIdPromise: Promise<string>;
   constructor(
     public http: HttpClient,
     private uniqueDeviceID: UniqueDeviceID,
@@ -73,9 +73,7 @@ export class FirebaseStoreProvider {
 
     // get device id to consider it as unique userID
     this.getDeviceId()
-      .then((uuid: string) => {
-
-        this.deviceId = uuid;
+      .then((deviceId: string) => {
 
         // this.alertCtrl.create({
         //   title: 'Device ID',
@@ -89,7 +87,7 @@ export class FirebaseStoreProvider {
         // build the required References
         this.buildRefs();
 
-        return this.deviceId;
+        return deviceId;
       })
       .catch((error: any) => {
         console.log('device-id - failed initializing app - could not read device-id', error);
@@ -110,7 +108,13 @@ export class FirebaseStoreProvider {
 
   // get phone's actual device id
   private getPhoneDeviceId = () => {
-    return this.uniqueDeviceID.get()
+
+    // check if already generated the deviceId
+    if (this.getDeviceIdPromise) {
+      return this.getDeviceIdPromise;
+    }
+
+    this.getDeviceIdPromise = this.uniqueDeviceID.get()
       .then((uuid: any) => {
         console.log('getPhoneDeviceId - uuid', uuid);
 
@@ -118,8 +122,10 @@ export class FirebaseStoreProvider {
         userID = this.encryptString(userID);
         console.log('getPhoneDeviceId - userID', userID);
 
-        return userID;
+        return this.deviceId = userID;
       });
+
+    return this.getDeviceIdPromise;
   };
 
   // returns the device id once retrieved already
