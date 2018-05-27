@@ -5,7 +5,6 @@ import { AlertController } from 'ionic-angular';
 import { UniqueDeviceID } from '@ionic-native/unique-device-id';
 
 import * as firebase from 'firebase';
-import CryptoAES from '../../../node_modules/crypto-js/aes';
 
 interface IRefs {
   channelsCodeRef?: any;
@@ -30,7 +29,6 @@ export class FirebaseStoreProvider {
   firebaseConfig: FirebaseConfig;
   activeChannelId: string = '123123123';
   deviceId: string;
-  deviceIdPromise: any;
   encryptionKey: string = 'myAmazingSawalApp';
   constructor(
     public http: HttpClient,
@@ -53,24 +51,31 @@ export class FirebaseStoreProvider {
   };
 
   public encryptString: (str:string) => string = (str) => {
-    return CryptoAES.encrypt(str, this.encryptionKey).toString();
+    const mapping = {
+      '-': 'a',
+      0: 'b',
+      1: 'c',
+      2: 'l',
+      3: 'm',
+      4: 'n',
+      5: 'p',
+      6: 'q',
+      7: 'r',
+      8: 'y',
+      9: 'z',
+    };
+
+    return str.split('').map(char => mapping[char]).join('');
   };
 
   // main initialization logic - one-time only
   public init () {
 
-    // get phone's device id to consider it as unique username
-    this.deviceIdPromise = this.getDeviceId();
+    // get device id to consider it as unique userID
+    this.getDeviceId()
+      .then((uuid: string) => {
 
-    this.deviceIdPromise
-      .then((uuid: any) => {
-        console.log('uuid', uuid);
-
-        let userID = uuid.substring(uuid.length - 16 - 1); // 16 IMEI plus 1 for "-"
-        userID = this.encryptString(userID);
-        console.log('userID', userID);
-
-        this.deviceId = userID;
+        this.deviceId = uuid;
 
         // this.alertCtrl.create({
         //   title: 'Device ID',
@@ -83,6 +88,8 @@ export class FirebaseStoreProvider {
 
         // build the required References
         this.buildRefs();
+
+        return this.deviceId;
       })
       .catch((error: any) => {
         console.log('device-id - failed initializing app - could not read device-id', error);
@@ -97,13 +104,27 @@ export class FirebaseStoreProvider {
   }
 
   // returns test device-id for development purpose
-  getTestDeviceId = () => {
+  private getTestDeviceId = () => {
     return Promise.resolve('test-device-id');
+  };
+
+  // get phone's actual device id
+  private getPhoneDeviceId = () => {
+    return this.uniqueDeviceID.get()
+      .then((uuid: any) => {
+        console.log('getPhoneDeviceId - uuid', uuid);
+
+        let userID = uuid.substring(uuid.length - 16 - 1); // 16 IMEI plus 1 for "-"
+        userID = this.encryptString(userID);
+        console.log('getPhoneDeviceId - userID', userID);
+
+        return userID;
+      });
   };
 
   // returns the device id once retrieved already
   getDeviceId() {
-    return location.hostname === 'localhost' ? this.getTestDeviceId() : this.uniqueDeviceID.get();
+    return location.hostname === 'localhost' ? this.getTestDeviceId() : this.getPhoneDeviceId();
   }
 
   // registers the user against the unique device-id
