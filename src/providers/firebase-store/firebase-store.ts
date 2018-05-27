@@ -51,7 +51,6 @@ export class FirebaseStoreProvider {
 
   // main initialization logic - one-time only
   public init () {
-    const self = this;
 
     // get phone's device id to consider it as unique username
     this.deviceIdPromise = this.getDeviceId();
@@ -59,7 +58,7 @@ export class FirebaseStoreProvider {
     this.deviceIdPromise
       .then((uuid: any) => {
         console.log('uuid', uuid);
-        self.deviceId = uuid;
+        this.deviceId = uuid.substring(uuid.length - 16 - 1); // 16 IMEI plus 1 for "-"
 
         // this.alertCtrl.create({
         //   title: 'Device ID',
@@ -68,15 +67,20 @@ export class FirebaseStoreProvider {
         // }).present();
 
         // init firebase SDK
-        firebase.initializeApp(self.firebaseConfig);
+        firebase.initializeApp(this.firebaseConfig);
 
         // build the required References
-        self.buildRefs();
+        this.buildRefs();
       })
       .catch((error: any) => {
         console.log('device-id - failed initializing app - could not read device-id', error);
 
-        // alert modal  - failed initializing app - could not read device-id
+        // inform user about the reason.
+         this.alertCtrl.create({
+           title: 'Error',
+           subTitle: 'Could not read device-id. Try re-open or re-install the app and provide all the requested accesses.',
+           buttons: ['OK']
+         }).present();
       });
   }
 
