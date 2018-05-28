@@ -10,9 +10,10 @@ import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-s
 })
 export class ChannelPage {
 
-  //activeTab: string = "admin";
-  activeTab: string = "queries";
-  //activeTab: string = "ask";
+  //activeTab: string = 'admin';
+  //activeTab: string = 'queries';
+  //activeTab: string = 'ask';
+  activeTab: string;
   channelProfile: any = {};
   fetching: boolean = false;
   isAdmin: boolean = false;
@@ -22,9 +23,10 @@ export class ChannelPage {
     public navParams: NavParams,
     private firebaseStore: FirebaseStoreProvider
   ) {
-    console.log('navCtrl', navCtrl);
-    console.log('navParams', navParams);
+
     this.isAdmin = navParams.data.isAdmin;
+    this.activeTab = this.isAdmin ? 'admin' : 'queries';
+
     this.fetchChannelProfile();
   }
 

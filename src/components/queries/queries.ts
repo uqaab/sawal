@@ -55,6 +55,11 @@ export class QueriesComponent implements OnDestroy {
     }
   }
 
+  // sorts the questions list according to timestamp
+  sortQuestions() {
+    this.questions.sort((a, b) => b['approvedOn'] - a['approvedOn']);
+  }
+
   // checks if there is any approved question or empty list.
   checkApprovedQuestionsList() {
     this.fetching = true;
@@ -157,6 +162,7 @@ export class QueriesComponent implements OnDestroy {
 
     // add new question into the questions list.
     this.questions.push(question);
+    this.sortQuestions();
 
     const actions = {
       onAdd: (comment, questionId) => this.commentsListOnAdd(comment, questionId),
