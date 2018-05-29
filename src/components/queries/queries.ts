@@ -29,8 +29,8 @@ export class QueriesComponent implements OnDestroy {
     this.checkApprovedQuestionsList();
     this.fetchApprovedQuestions();
 
-    // for now making all users an admin
-    this.isAdmin = true;
+    // DEV only - render admin view
+    //this.isAdmin = true;
   }
 
   // retrieves the count / length of the object
