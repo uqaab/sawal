@@ -243,7 +243,7 @@ export class FirebaseStoreProvider {
 
         if (error) {
           console.log('submitComment: comments ref: error - ', error);
-          reject('Comment submission failed. ' + error);
+          reject('Reply submission failed. ' + error);
         }
 
         // add comment entry into question's comments list.
@@ -252,7 +252,7 @@ export class FirebaseStoreProvider {
           .set(true, error => {
             if (error) {
               console.log('submitComment: channels ref: error - ', error);
-              reject('Comment submission partially failed. ' + error);
+              reject('Reply submission partially failed. ' + error);
 
               // perhaps revert the above operation ?
             }
