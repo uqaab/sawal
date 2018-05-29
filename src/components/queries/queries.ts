@@ -19,6 +19,7 @@ export class QueriesComponent implements OnDestroy {
   questions = [];
   unSubscribeQuestionsList: Function;
   dispatchers: any = {};
+  userID: string;
   isAdmin: boolean = false;
 
   constructor( private firebaseStore: FirebaseStoreProvider,
@@ -28,6 +29,8 @@ export class QueriesComponent implements OnDestroy {
   ) {
     this.checkApprovedQuestionsList();
     this.fetchApprovedQuestions();
+
+    this.userID = this.firebaseStore.deviceId;
 
     // DEV only - render admin view
     //this.isAdmin = true;

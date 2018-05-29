@@ -33,6 +33,7 @@
 
     <!-- controls -->
     <ion-row>
+
       <ion-col col-5>
         <button class="vote-button" ion-button icon-left clear small (click)="questionVoteToggle(question)">
           <ion-icon *ngIf="votedQuestions[question.questionId]" name="thumbs-up" md="ios-thumbs-up"></ion-icon>
@@ -42,13 +43,15 @@
           <div><span>{{question.votes.length}}</span> Votes</div>
         </button>
       </ion-col>
+
       <ion-col col-5>
         <button ion-button icon-left clear small (click)="expandedComments[question.questionId] = !expandedComments[question.questionId]" >
           <ion-icon [hidden]="!question.comments.length" [name]="!expandedComments[question.questionId] ? 'arrow-down' : 'arrow-up'"></ion-icon>
-          <div><span>{{question.comments.length}}</span> Answers</div>
+          <div><span>{{question.comments.length}}</span> Replies</div>
         </button>
       </ion-col>
-      <ion-col col-2>
+
+      <ion-col col-2 *ngIf="isAdmin || question.askedBy === userID">
         <button clear color="danger" class="button button-ios button-clear button-clear-ios-danger delete-btn" (click)="removeQuestion(question.questionId)">
           <span class="button-inner">
            <ion-icon is-active="true" name="trash" role="img" class="icon icon-ios ion-ios-trash" aria-label="trash"></ion-icon>
@@ -82,7 +85,7 @@
         <!-- text box ends - question / comment -->
 
         <!-- controls -->
-        <ion-row>
+        <ion-row *ngIf="isAdmin || comment.commentedBy === userID">
           <ion-col text-right>
             <button ion-button outline small color="danger" (click)="removeComment(question.questionId, comment.commentId)">
               <ion-icon name="trash"></ion-icon>
@@ -93,12 +96,10 @@
 
     </div>
 
-    <!-- for Admin only -->
-    <ion-card [hidden]="!isAdmin || question.showCommentBox">
-      <button ion-button full color="secondary" (click)="question.showCommentBox = true;">Answer</button>
+    <!-- for Admins and askedBy user himself only -->
+    <ion-card *ngIf="(isAdmin || question.askedBy === userID) && !question.showCommentBox">
+      <button ion-button full color="secondary" (click)="question.showCommentBox = true;">Reply</button>
     </ion-card>
-
-    <!-- for Admin only -->
     <!-- TODO refactor to a separate component -->
     <ion-card *ngIf="question.showCommentBox">
       <ion-grid>
