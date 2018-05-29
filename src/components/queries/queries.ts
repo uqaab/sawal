@@ -62,9 +62,9 @@ export class QueriesComponent implements OnDestroy {
   }
 
   // sorts the comments list according to timestamp
-  sortComments(question) {
+  sortComments = (question) => {
     question.comments.sort((a, b) => b['commentedOn'] - a['commentedOn']);
-  }
+  };
 
   // checks if there is any approved question or empty list.
   checkApprovedQuestionsList() {
@@ -379,12 +379,6 @@ export class QueriesComponent implements OnDestroy {
         question.voting = false;
 
         this.alertCtrl.create({
-          title: 'Successful !',
-          subTitle: 'You have voted up the question successfully.',
-          buttons: ['OK']
-        }).present();
-
-        this.alertCtrl.create({
           title: 'Error',
           subTitle: error,
           buttons: ['OK']
@@ -402,12 +396,6 @@ export class QueriesComponent implements OnDestroy {
       })
       .catch(error => {
         question.voting = false;
-
-        this.alertCtrl.create({
-          title: 'Successful !',
-          subTitle: 'You have removed your vote for the question successfully.',
-          buttons: ['OK']
-        }).present();
 
         this.alertCtrl.create({
           title: 'Error',
