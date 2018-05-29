@@ -9,6 +9,9 @@
   },
   "private": true,
   "scripts": {
+    "serve": "ionic serve -l",
+    "build-a": "ionic cordova build android",
+    "build-ios": "ionic cordova build ios",
     "clean": "ionic-app-scripts clean",
     "build": "ionic-app-scripts build",
     "lint": "ionic-app-scripts lint",
@@ -40,7 +43,8 @@
     "moment": "^2.22.1",
     "rxjs": "5.5.10",
     "sw-toolbox": "3.6.0",
-    "zone.js": "0.8.26"
+    "zone.js": "0.8.26",
+    "cordova-android": "~7.0.0"
   },
   "devDependencies": {
     "@ionic/app-scripts": "3.1.9",
@@ -55,7 +59,8 @@
       "cordova-plugin-ionic-keyboard": {}
     },
     "platforms": [
-      "ios"
+      "ios",
+      "android"
     ]
   }
 }
