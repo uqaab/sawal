@@ -121,7 +121,7 @@ export class FirebaseStoreProvider {
 
     console.log('this.device', window.device);
 
-    this.getDeviceIdPromise = Promise.resolve(window.device ? window.device.uuid : Date.now())
+    this.getDeviceIdPromise = Promise.resolve(window.device ? window.device.uuid : 'iphone-user-id')
       .then((uuid: any) => {
         console.log('getPhoneDeviceId - uuid', uuid);
 
