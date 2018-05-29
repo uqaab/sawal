@@ -2,7 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { AlertController } from 'ionic-angular';
-import { UniqueDeviceID } from '@ionic-native/unique-device-id';
+//import { Device } from '@ionic-native/device';
+
+declare var window;
 
 import * as firebase from 'firebase';
 
@@ -32,7 +34,7 @@ export class FirebaseStoreProvider {
   getDeviceIdPromise: Promise<string>;
   constructor(
     public http: HttpClient,
-    private uniqueDeviceID: UniqueDeviceID,
+    //private device: Device,
     public alertCtrl: AlertController
   ) {
     this.firebaseConfig = new FirebaseConfig();
@@ -117,7 +119,9 @@ export class FirebaseStoreProvider {
       return this.getDeviceIdPromise;
     }
 
-    this.getDeviceIdPromise = this.uniqueDeviceID.get()
+    console.log('this.device', window.device);
+
+    this.getDeviceIdPromise = Promise.resolve(window.device ? window.device.uuid : Date.now())
       .then((uuid: any) => {
         console.log('getPhoneDeviceId - uuid', uuid);
 
