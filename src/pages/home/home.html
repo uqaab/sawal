@@ -1,5 +1,8 @@
 <ion-header>
   <ion-navbar>
+    <button ion-button icon-only menuToggle="left">
+      <ion-icon name="menu"></ion-icon>
+    </button>
     <ion-title>Welcome</ion-title>
   </ion-navbar>
 
@@ -18,7 +21,7 @@
       </h4>
 
       <!-- user found already-->
-      <h4 class="welcome-section" *ngIf="!fetching && userName"><strong>{{userName}}</strong> !</h4>
+      <h4 class="username" *ngIf="!fetching && userName"><strong>{{userName}}</strong> !</h4>
 
       <!-- if new user - register first -->
       <div *ngIf="!fetching && !userName" class="register-section">

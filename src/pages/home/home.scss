@@ -1,8 +1,12 @@
 page-home {
+  ion-title{
+    text-align: center;
+    padding-right: 55px;
+  }
   ion-select{
     max-width: initial;
   }
-  .welcome-section{
+  .username{
     margin-bottom: 15px;
     text-align: center;
   }
