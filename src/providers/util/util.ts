@@ -23,6 +23,23 @@ export class UtilProvider {
     }
   };
 
+  // generates a random key string of length 25, 26.
+  generateRandomKey: () => string = () => {
+    let date = new Date();
+    let components = [
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds(),
+      date.getMilliseconds()
+    ];
+
+    // 25  - 21 digits UUID
+    return components.join('') + Math.random().toString().substr(2, 10);
+  };
+
   // confirm modal for remove question, or answer.
   confirmRemove() {
     return new Promise((resolve, reject) => {

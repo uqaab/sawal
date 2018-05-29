@@ -1,12 +1,16 @@
+declare var window;
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { AlertController } from 'ionic-angular';
+
+import { Keychain } from '@ionic-native/keychain';
 //import { Device } from '@ionic-native/device';
 
-declare var window;
-
 import * as firebase from 'firebase';
+
+import { UtilProvider } from '../../providers/util/util';
 
 interface IRefs {
   channelsCodeRef?: any;
@@ -34,7 +38,9 @@ export class FirebaseStoreProvider {
   getDeviceIdPromise: Promise<string>;
   constructor(
     public http: HttpClient,
+    public util: UtilProvider,
     //private device: Device,
+    private keychain: Keychain,
     public alertCtrl: AlertController
   ) {
     this.firebaseConfig = new FirebaseConfig();
@@ -55,16 +61,16 @@ export class FirebaseStoreProvider {
   public encryptString: (str:string) => string = (str) => {
     const mapping = {
       '-': 'a',
-      0: 'b',
-      1: 'c',
-      2: 'l',
-      3: 'm',
-      4: 'n',
-      5: 'p',
-      6: 'q',
-      7: 'r',
-      8: 'y',
-      9: 'z',
+      '0': 'b',
+      '1': 'c',
+      '2': 'l',
+      '3': 'm',
+      '4': 'n',
+      '5': 'p',
+      '6': 'q',
+      '7': 'r',
+      '8': 'y',
+      '9': 'z'
     };
 
     return str.split('').map(char => mapping[char] || char).join('');
@@ -104,7 +110,7 @@ export class FirebaseStoreProvider {
   }
 
   // DEV only - returns test device-id for development purpose
-  private getTestDeviceId = () => {
+  private getTestDeviceId: () => Promise<string> = () => {
     return Promise.resolve('test-device-id')
       .then((deviceId: string) => {
         return this.deviceId = deviceId;
@@ -112,7 +118,7 @@ export class FirebaseStoreProvider {
   };
 
   // get phone's actual device id
-  private getPhoneDeviceId = () => {
+  private getPhoneDeviceId: () => Promise<string> = () => {
 
     // check if already generated the deviceId
     if (this.getDeviceIdPromise) {
@@ -121,22 +127,60 @@ export class FirebaseStoreProvider {
 
     console.log('this.device', window.device);
 
-    this.getDeviceIdPromise = Promise.resolve(window.device ? window.device.uuid : 'iphone-user-id')
-      .then((uuid: any) => {
-        console.log('getPhoneDeviceId - uuid', uuid);
+    this.getDeviceIdPromise = new Promise((resolve, reject) => {
+
+      // if it is an android - cordova-plugin-device takes care of it.
+      if (window.device) {
+        const uuid = window.device.uuid;
+        console.log('getPhoneDeviceId: android: uuid', uuid);
 
         let userID = uuid.substring(uuid.length - 16 - 1); // 16 IMEI plus 1 for "-"
         userID = this.encryptString(userID);
+
         console.log('getPhoneDeviceId - userID', userID);
+        resolve(userID);
+        return;
+      }
 
-        return this.deviceId = userID;
+      console.log('getPhoneDeviceId: ios');
+
+      // otherwise its ios - custom game
+
+      const keyChainFieldName = 'SAWAL_USER_ID';
+      this.keychain.get(keyChainFieldName).then((uuid: string) => {
+
+        // check if already previously stored custom UUID
+        if (uuid) {
+          console.log('getPhoneDeviceId: ios: uuid', uuid);
+          resolve(uuid);
+          return;
+        }
+
+        // otherwise generate a new UUID and store it inside keychain.x
+        const newCustomUUID: string = this.util.generateRandomKey();
+        console.log('getPhoneDeviceId: ios: writing uuid', newCustomUUID);
+        this.keychain.set(keyChainFieldName, newCustomUUID, false)
+          .then(() => {
+
+            console.log('getPhoneDeviceId: ios: writing success uuid', newCustomUUID);
+            resolve(newCustomUUID);
+          }).catch((err) => {
+
+          console.log('getPhoneDeviceId: ios: writing failed uuid', newCustomUUID, err);
+          reject('Failed in writing custom UUID to keychain.');
+        });
+
       });
+    });
 
-    return this.getDeviceIdPromise;
+    return this.getDeviceIdPromise
+      .then(uuid => {
+        return this.deviceId = this.encryptString(uuid);
+      });
   };
 
   // returns the device id once retrieved already
-  getDeviceId() {
+  getDeviceId() : Promise<string> {
     return location.hostname === 'localhost' ? this.getTestDeviceId() : this.getPhoneDeviceId();
   }
 

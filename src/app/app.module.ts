@@ -14,6 +14,7 @@ import { QueriesComponent } from '../components/queries/queries';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { Keychain } from '@ionic-native/keychain';
 
 import { FirebaseStoreProvider } from '../providers/firebase-store/firebase-store';
 import { UtilProvider } from '../providers/util/util';
@@ -46,6 +47,7 @@ import { UtilProvider } from '../providers/util/util';
   providers: [
     StatusBar,
     SplashScreen,
+    Keychain,
     FirebaseStoreProvider,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     UtilProvider
