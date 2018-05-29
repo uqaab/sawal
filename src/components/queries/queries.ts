@@ -161,7 +161,8 @@ export class QueriesComponent implements OnDestroy {
 
     // add new comments into the question comments list.
     question.comments.push(comment);
-    this.sortComments(question);
+
+    //this.sortComments(question); // skip sort comments
   }
 
   // subscription - to be invoked on existing comment is removed
@@ -354,7 +355,7 @@ export class QueriesComponent implements OnDestroy {
 
         this.alertCtrl.create({
           title: 'Successful !',
-          subTitle: 'Your answer has been submitted successfully.',
+          subTitle: 'Your reply has been submitted successfully.',
           buttons: ['OK']
         }).present();
 
