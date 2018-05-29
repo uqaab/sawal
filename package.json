@@ -1,8 +1,12 @@
 {
   "name": "sawal",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "http://ionicframework.com/",
+  "version": "0.1.0",
+  "author": "Sawal",
+  "homepage": "https://github.com/uqaab/sawal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uqaab/sawal"
+  },
   "private": true,
   "scripts": {
     "clean": "ionic-app-scripts clean",
