@@ -47,11 +47,6 @@ export class AdminComponent implements OnDestroy {
     }
   }
 
-  // sorts the questions list according to timestamp
-  sortQuestions() {
-    this.questions.sort((a, b) => b['askedOn'] - a['askedOn']);
-  }
-
   // checks if there is any pending question or empty list.
   checkPendingQuestionsList() {
     this.fetching = true;
@@ -87,7 +82,7 @@ export class AdminComponent implements OnDestroy {
     }
 
     this.questions.push(question);
-    this.sortQuestions();
+    //this.sortQuestions(); // no sort required. default is later on top.
     this.hideWaitScreen();
 
     // Subscribe to the approval changes (when other admin approves and so updates the question pending state)
