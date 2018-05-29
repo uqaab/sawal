@@ -65,7 +65,7 @@ export class FirebaseStoreProvider {
       9: 'z',
     };
 
-    return str.split('').map(char => mapping[char]).join('');
+    return str.split('').map(char => mapping[char] || char).join('');
   };
 
   // main initialization logic - one-time only
@@ -101,9 +101,12 @@ export class FirebaseStoreProvider {
       });
   }
 
-  // returns test device-id for development purpose
+  // DEV only - returns test device-id for development purpose
   private getTestDeviceId = () => {
-    return Promise.resolve('test-device-id');
+    return Promise.resolve('test-device-id')
+      .then((deviceId: string) => {
+        return this.deviceId = deviceId;
+      });
   };
 
   // get phone's actual device id
@@ -263,14 +266,14 @@ export class FirebaseStoreProvider {
   // retrieves the questions comments.
   subscribeQuestionComments(questionId, actions) {
 
-    // when a new question gets added to the channel
+    // when a new comment gets added to the question
     const onQuestionCommentAdd = (commentSnapshot) => {
       const commentId = commentSnapshot.key;
       this.getCommentInfo(commentId)
         .then((comment: any) => {
           actions.onAdd(comment, questionId);
 
-          // get the name of the user using the field askedBy
+          // get the name of the user using the field commentedBy
           this.getUserProfile(comment.commentedBy)
             .then((user: any) => {
               comment.commentedByName = user ? user.name : comment.commentedBy;
@@ -284,23 +287,23 @@ export class FirebaseStoreProvider {
         });
     };
 
-    // when a question gets removed from the channel
+    // when a comment gets removed from the question
     const onQuestionCommentRemove = (commentSnapshot) => {
       const commentId = commentSnapshot.key;
       actions.onRemove(commentId, questionId);
     };
 
     // comments list of the target question.
-    const questionsCommentsRef = this.refs.questionsRef.child(questionId).child('comments');
+    const questionCommentsRef = this.refs.questionsRef.child(questionId).child('comments');
 
-    // subscribe the questions list
-    questionsCommentsRef.on('child_added', onQuestionCommentAdd);
-    questionsCommentsRef.on('child_removed', onQuestionCommentRemove);
+    // subscribe the comments list
+    questionCommentsRef.on('child_added', onQuestionCommentAdd);
+    questionCommentsRef.on('child_removed', onQuestionCommentRemove);
 
     // returns the detach callback to un subscribe the list
     return () => {
-      questionsCommentsRef.off('child_added', onQuestionCommentAdd);
-      questionsCommentsRef.off('child_removed', onQuestionCommentRemove);
+      questionCommentsRef.off('child_added', onQuestionCommentAdd);
+      questionCommentsRef.off('child_removed', onQuestionCommentRemove);
     }
   }
 
@@ -333,6 +336,8 @@ export class FirebaseStoreProvider {
 
       this.refs.commentsRef.child(commentId).once('value', (snapshot) => {
           const comment = snapshot.val();
+          comment.commentId = snapshot.key;
+
           if (comment) {
             resolve(comment);
           } else {
@@ -423,22 +428,87 @@ export class FirebaseStoreProvider {
       });
   }
 
-  // removes the selected question from the channels list and questions list as well.
-  removeAnswer(questionId, commentId, channelId?) {
+  // removes the selected comment from the questions list.
+  removeComment(questionId, commentId) {
 
-    // by default push the question to active channel
-    channelId = channelId || this.activeChannelId;
-
-    // remove the entry from channel's comments list
-    return this.refs.channelsRef.child(channelId)
-      .child('questions').child(questionId)
+    // remove the entry from question's comments list
+    return this.refs.questionsRef.child(questionId)
       .child('comments').child(commentId)
       .remove()
       .then(()=> {
 
-        // remove the entry from questions list
+        // remove the comment from comments list
         return this.refs.commentsRef.child(commentId).remove()
       });
+  }
+
+  // submit a vote-up for the selected question
+  questionVoteUp(questionId) {
+
+    return new Promise((resolve, reject) => {
+
+      this.refs.questionsRef.child(questionId).child('votes').child(this.deviceId).set(Date.now(), error => {
+
+        if (error) {
+          console.log('submitQuestionVote: error - ', error);
+          reject('Vote Up submission failed');
+        }
+
+        resolve('Successfully voted for the question.');
+      });
+    });
+  }
+
+  // remove the vote-up of the selected question
+  questionVoteRemove(questionId) {
+
+    // remove the entry from question votes list
+    return this.refs.questionsRef.child(questionId)
+      .child('votes').child(this.deviceId)
+      .remove();
+  }
+
+  // retrieves the questions comments.
+  subscribeQuestionVotes(questionId, actions) {
+
+    // when a new vote gets added to the question
+    const onQuestionVoteAdd = (voteSnapshot) => {
+      const voteInfo = {
+        votedBy: voteSnapshot.key,
+        votedOn: voteSnapshot.val(),
+        votedByName: undefined
+      };
+
+      actions.onAdd(voteInfo, questionId);
+
+      // get the name of the user using the field votedBy
+      this.getUserProfile(voteInfo.votedBy)
+        .then((user: any) => {
+          voteInfo.votedByName = user ? user.name : voteInfo.votedBy;
+        })
+        .catch(error => {
+          console.log('onQuestionVoteAdd - could not get user name against votedBy field value.', error);
+        });
+    };
+
+    // when a vote gets removed from the question
+    const onQuestionVoteRemove = (voteSnapshot) => {
+      const voteId = voteSnapshot.key;
+      actions.onRemove(voteId, questionId);
+    };
+
+    // votes list of the target question.
+    const questionVotesRef = this.refs.questionsRef.child(questionId).child('votes');
+
+    // subscribe the votes list
+    questionVotesRef.on('child_added', onQuestionVoteAdd);
+    questionVotesRef.on('child_removed', onQuestionVoteRemove);
+
+    // returns the detach callback to un subscribe the list
+    return () => {
+      questionVotesRef.off('child_added', onQuestionVoteAdd);
+      questionVotesRef.off('child_removed', onQuestionVoteRemove);
+    }
   }
 
   // retrieves the questions which needs approval

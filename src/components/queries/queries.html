@@ -34,8 +34,11 @@
     <!-- controls -->
     <ion-row>
       <ion-col col-5>
-        <button ion-button icon-left clear small>
-          <ion-icon name="thumbs-up-outline" md="ios-thumbs-up-outline"></ion-icon>
+        <button class="vote-button" ion-button icon-left clear small (click)="questionVoteToggle(question)">
+          <ion-icon *ngIf="votedQuestions[question.questionId]" name="thumbs-up" md="ios-thumbs-up"></ion-icon>
+          <ion-icon *ngIf="!votedQuestions[question.questionId]" name="thumbs-up-outline" md="ios-thumbs-up-outline"></ion-icon>
+        </button>
+        <button class="vote-count" ion-button icon-left clear small (click)="showQuestionVotesList(question)">
           <div><span>{{question.votes.length}}</span> Votes</div>
         </button>
       </ion-col>

@@ -12,6 +12,7 @@ import { UtilProvider } from '../../providers/util/util';
 })
 export class QueriesComponent implements OnDestroy {
   expandedComments: any = {};
+  votedQuestions: any = {};
   fetching: boolean = false;
   fetchingError: string;
   waitState: any;
@@ -60,6 +61,11 @@ export class QueriesComponent implements OnDestroy {
     this.questions.sort((a, b) => b['approvedOn'] - a['approvedOn']);
   }
 
+  // sorts the comments list according to timestamp
+  sortComments(question) {
+    question.comments.sort((a, b) => b['commentedOn'] - a['commentedOn']);
+  }
+
   // checks if there is any approved question or empty list.
   checkApprovedQuestionsList() {
     this.fetching = true;
@@ -85,6 +91,58 @@ export class QueriesComponent implements OnDestroy {
       });
   }
 
+  // subscription - to be invoked on new vote is added
+  votesListOnAdd(vote, questionId) {
+
+    // find the index of target question
+    const questionIndex = this.utilService.getIndexOf(this.questions, 'questionId', questionId);
+
+    if (questionIndex === undefined) {
+      console.warn('votesListOnAdd: could not find question. already removed ?', questionId);
+      return;
+    }
+
+    const question = this.questions[questionIndex];
+
+    // add new comments into the question comments list.
+    question.votes.push(vote);
+
+    // check if this vote is by the user himself
+    if (vote.votedBy === this.firebaseStore.deviceId) {
+      this.votedQuestions[question.questionId] = true;
+    }
+  }
+
+  // subscription - to be invoked on existing vote is removed
+  votesListOnRemove(voteId, questionId) {
+
+    // find the index of target question
+    const questionIndex = this.utilService.getIndexOf(this.questions, 'questionId', questionId);
+
+    if (questionIndex === undefined) {
+      console.warn('commentsListOnAdd: could not find question. already removed ?', questionId);
+      return;
+    }
+
+    const question = this.questions[questionIndex];
+
+    // find the index of target comment
+    const voteIndex = this.utilService.getIndexOf(question.votes, 'votedBy', voteId);
+
+    if (voteIndex === undefined) {
+      console.warn('votesListOnRemove: could not find vote. already removed ?', voteId);
+      return;
+    }
+
+    // remove the target vote form the question votes list.
+    question.votes.splice(voteIndex, 1);
+
+    // check if the vote was by the user himself
+    if (voteId === this.firebaseStore.deviceId) {
+      this.votedQuestions[question.questionId] = false;
+    }
+  }
+
   // subscription - to be invoked on new comment is added
   commentsListOnAdd(comment, questionId) {
 
@@ -100,6 +158,7 @@ export class QueriesComponent implements OnDestroy {
 
     // add new comments into the question comments list.
     question.comments.push(comment);
+    this.sortComments(question);
   }
 
   // subscription - to be invoked on existing comment is removed
@@ -124,7 +183,7 @@ export class QueriesComponent implements OnDestroy {
     }
 
     // remove the target comment form the question comment list.
-    question.comments.splice(questionIndex, 1);
+    question.comments.splice(commentIndex, 1);
   }
 
   // subscription - to be invoked on new question added
@@ -164,13 +223,21 @@ export class QueriesComponent implements OnDestroy {
     this.questions.push(question);
     this.sortQuestions();
 
-    const actions = {
+    const commentsActions = {
       onAdd: (comment, questionId) => this.commentsListOnAdd(comment, questionId),
       onRemove: (commentId, questionId) => this.commentsListOnRemove(commentId, questionId)
     };
 
-    // subscribe to question comments.
-    question.unSubscribeCommentsList = this.firebaseStore.subscribeQuestionComments(question.questionId, actions);
+    // subscribe to question comments, and keep the dispatcher.
+    question.unSubscribeCommentsList = this.firebaseStore.subscribeQuestionComments(question.questionId, commentsActions);
+
+    const votesActions = {
+      onAdd: (vote, questionId) => this.votesListOnAdd(vote, questionId),
+      onRemove: (voteId, questionId) => this.votesListOnRemove(voteId, questionId)
+    };
+
+    // subscribe to question votes, and keep the dispatcher.
+    question.unSubscribeVotesList = this.firebaseStore.subscribeQuestionVotes(question.questionId, votesActions);
   }
 
   // subscription - to be invoked on existing question removed
@@ -232,8 +299,8 @@ export class QueriesComponent implements OnDestroy {
       });
   }
 
-  // removes the selected question from the channels list and questions list as well.
-  removeAnswer(questionId, commentId) {
+  // removes the selected comment from the channels list and questions list as well.
+  removeComment(questionId, commentId) {
 
     // ask for confirmation first.
     this.utilService.confirmRemove()
@@ -244,7 +311,7 @@ export class QueriesComponent implements OnDestroy {
         });
 
         wait.present();
-        this.firebaseStore.removeAnswer(questionId, commentId)
+        this.firebaseStore.removeComment(questionId, commentId)
           .then(() => {
             // comment removal from local array list is done via fetchApprovedQuestions()
             wait.dismiss();
@@ -260,6 +327,7 @@ export class QueriesComponent implements OnDestroy {
       });
   }
 
+  // submits a new comment against the given question.
   submitComment(question) {
 
     // payload validation
@@ -299,6 +367,66 @@ export class QueriesComponent implements OnDestroy {
       });
   }
 
+  // vote-up the given question.
+  questionVoteUp(question) {
+
+    question.voting = true;
+    this.firebaseStore.questionVoteUp(question.questionId)
+      .then(() => {
+        question.voting = false;
+      })
+      .catch(error => {
+        question.voting = false;
+
+        this.alertCtrl.create({
+          title: 'Successful !',
+          subTitle: 'You have voted up the question successfully.',
+          buttons: ['OK']
+        }).present();
+
+        this.alertCtrl.create({
+          title: 'Error',
+          subTitle: error,
+          buttons: ['OK']
+        }).present();
+      });
+  }
+
+  // removes the vote-up against the given question.
+  questionVoteRemove(question) {
+
+    question.voting = true;
+    this.firebaseStore.questionVoteRemove(question.questionId)
+      .then(() => {
+        question.voting = false;
+      })
+      .catch(error => {
+        question.voting = false;
+
+        this.alertCtrl.create({
+          title: 'Successful !',
+          subTitle: 'You have removed your vote for the question successfully.',
+          buttons: ['OK']
+        }).present();
+
+        this.alertCtrl.create({
+          title: 'Error',
+          subTitle: error,
+          buttons: ['OK']
+        }).present();
+      });
+  }
+
+  // check if already voted then remove vote, otherwise vote-up for the question.
+  questionVoteToggle(question) {
+    console.log('questionVoteToggle');
+    this.votedQuestions[question.questionId] ? this.questionVoteRemove(question) : this.questionVoteUp(question);
+  }
+
+  showQuestionVotesList(question) {
+    console.log('showVotesList');
+  }
+
   // to be invoked when view is about to be destroyed.
   ngOnDestroy() {
     this.unSubscribeQuestionsList();
@@ -311,6 +439,7 @@ export class QueriesComponent implements OnDestroy {
     // clear listeners for questions comments list
     for (let i = 0; i < this.questions.length; i++) {
       this.questions[i].unSubscribeCommentsList();
+      this.questions[i].unSubscribeVotesList();
     }
   }
 
