@@ -3,6 +3,7 @@ import { Nav, Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
+//import { ChannelPage } from '../pages/channel/channel';
 import { HomePage } from '../pages/home/home';
 import { AboutUsPage } from '../pages/about-us/about-us';
 
@@ -14,6 +15,7 @@ import { FirebaseStoreProvider } from '../providers/firebase-store/firebase-stor
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
+  //rootPage: any = ChannelPage;
   rootPage: any = HomePage;
   pages: Array<{title: string, component: any}>;
 

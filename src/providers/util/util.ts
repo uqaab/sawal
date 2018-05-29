@@ -27,8 +27,8 @@ export class UtilProvider {
   confirmRemove() {
     return new Promise((resolve, reject) => {
       this.alertCtrl.create({
-        title: 'Confirmation',
-        message: 'Are you sure you want to delete ?',
+        title: 'Confirm',
+        message: 'Are you sure, you want to delete?',
         buttons: [{
           text: 'Cancel',
           role: 'cancel',
