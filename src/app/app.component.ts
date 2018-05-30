@@ -36,15 +36,13 @@ export class MyApp {
 
   initializeApp() {
     this.platform.ready().then(() => this.onPlatformReady() );
-
-    // init our app firebase store
-    this.firebaseStore.init();
   }
 
   // Okay, so the platform is ready and our plugins are available.
   // Here you can do any higher level native things you might need.
   onPlatformReady() {
 
+    /* plugins stuff starts */
     // android specific settings
     if (this.platform.is('android')) {
       this.statusBar.styleLightContent();
@@ -56,6 +54,11 @@ export class MyApp {
 
     // common settings
     this.splashScreen.hide();
+
+    /* plugins stuff ends */
+
+    // init our app firebase store
+    this.firebaseStore.init();
   }
 
   openPage(page) {
