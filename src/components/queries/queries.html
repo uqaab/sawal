@@ -42,14 +42,14 @@
           <ion-icon *ngIf="!votedQuestions[question.questionId]" name="thumbs-up-outline" md="ios-thumbs-up-outline"></ion-icon>
         </button>
         <button class="vote-count" ion-button icon-left clear small (click)="showQuestionVotesList(question)">
-          <div><span>{{102 || question.votes.length}}</span> Votes</div>
+          <div><span>{{question.votes.length}}</span> Votes</div>
         </button>
       </ion-col>
 
       <ion-col col-5 class="question-comments">
         <button ion-button icon-left clear small (click)="expandedComments[question.questionId] = !expandedComments[question.questionId]" >
           <ion-icon [hidden]="!question.comments.length" [name]="!expandedComments[question.questionId] ? 'arrow-down' : 'arrow-up'"></ion-icon>
-          <div><span>{{ 102 || question.comments.length}}</span> Replies</div>
+          <div><span>{{question.comments.length}}</span> Replies</div>
         </button>
       </ion-col>
 
