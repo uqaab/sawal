@@ -419,12 +419,31 @@ export class QueriesComponent implements OnDestroy {
     console.log('showVotesList');
   }
 
+  // copies the comment text to user clipboard / memory
+  copyComment(comment) {
+    this.utilService.copyToClipboard(comment.text);
+  }
+
+  // copies the comment text to user clipboard / memory
+  copyQuestion(question) {
+    let text = question.text;
+
+    // attach each comment text
+    question.comments.forEach(comment => {
+      text += '\n-\n';
+      text += comment.commentedByName + ':\n';
+      text += comment.text;
+    });
+
+    this.utilService.copyToClipboard(text);
+  }
+
   // to be invoked when view is about to be destroyed.
   ngOnDestroy() {
     this.unSubscribeQuestionsList();
 
     // clear listeners for questions pending approval state
-    for (let questionId in this.dispatchers) {
+    for (const questionId in this.dispatchers) {
       this.dispatchers[questionId]();
     }
 

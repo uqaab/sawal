@@ -1,7 +1,22 @@
 queries {
-  .answers-section {
-    ion-col {
-      padding: 0;
+  .comment-card{
+    ion-card-content{
+      padding-bottom: 7px;
+    }
+    .icon-button{
+      span{
+        margin-left: 5px;
+      }
+    }
+    .comment-controls{
+      button{
+        padding-left: 3px;
+      }
+    }
+    .timestamp {
+      display: inline-block;
+      margin-top: 10px;
+      padding-right: 5px;
     }
   }
   .vote-button{
@@ -9,7 +24,7 @@ queries {
     padding-right: 0;
   }
   .vote-count{
-    padding-left: 0;
-    margin-left: 2px;
+    margin-right: 0;
+    padding: 0;
   }
 }

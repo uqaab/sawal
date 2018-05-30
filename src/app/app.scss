@@ -20,18 +20,14 @@ body, ion-app {
 }
 
 // consumed on admin, and question tab
-.question-card{
+.compact-card{
   .card-content-ios, .card-content-android {
     padding-top: 0 ;
     padding-bottom: 0;
   }
-  .button-clear-ios-danger {
-    margin: -5px 0 !important;
-  }
-  .timestamp {
-    display: inline-block;
-    margin-top: 10px;
-    padding-right: 5px;
+  ion-card-content{
+    padding-top: 5px;
+    padding-bottom: 0;
   }
   ion-title {
     text-align: center !important;
