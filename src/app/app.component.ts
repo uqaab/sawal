@@ -35,15 +35,27 @@ export class MyApp {
   }
 
   initializeApp() {
-    this.platform.ready().then(() => {
-      // Okay, so the platform is ready and our plugins are available.
-      // Here you can do any higher level native things you might need.
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
-    });
+    this.platform.ready().then(() => this.onPlatformReady() );
 
     // init our app firebase store
     this.firebaseStore.init();
+  }
+
+  // Okay, so the platform is ready and our plugins are available.
+  // Here you can do any higher level native things you might need.
+  onPlatformReady() {
+
+    // android specific settings
+    if (this.platform.is('android')) {
+      this.statusBar.styleLightContent();
+
+      // ios, windows specific settings
+    } else {
+      this.statusBar.styleDefault();
+    }
+
+    // common settings
+    this.splashScreen.hide();
   }
 
   openPage(page) {
