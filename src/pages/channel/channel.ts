@@ -28,6 +28,9 @@ export class ChannelPage {
     this.activeTab = this.isAdmin ? 'admin' : 'queries';
 
     this.fetchChannelProfile();
+
+    //for DEV only. render admin view
+    //this.isAdmin = true;
   }
 
   // fetches channel profile
