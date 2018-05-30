@@ -50,7 +50,6 @@ export class UtilProvider {
     if (!el) {
       el = document.createElement('textarea');        // Create a <textarea> element
 
-      el.value = textToCopy;                          // Set its value to the string that you want copied
       el.setAttribute('id', elementId);               // Make it readonly to be tamper-proof
       el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
       el.style.position = 'absolute';
@@ -58,6 +57,8 @@ export class UtilProvider {
 
       document.body.appendChild(el);                  // Append the <textarea> element to the HTML document
     }
+
+    el.value = textToCopy;                          // Set its value to the string that you want copied
 
     const selected =
       document.getSelection().rangeCount > 0        // Check if there is any content selected previously

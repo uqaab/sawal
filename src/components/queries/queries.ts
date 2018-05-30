@@ -426,7 +426,8 @@ export class QueriesComponent implements OnDestroy {
 
   // copies the comment text to user clipboard / memory
   copyQuestion(question) {
-    let text = question.text;
+    let text = question.askedByName + ':\n';
+    text += question.text;
 
     // attach each comment text
     question.comments.forEach(comment => {
