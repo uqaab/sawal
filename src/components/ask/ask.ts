@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AlertController } from 'ionic-angular';
 
 import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
+import { UtilProvider } from '../../providers/util/util';
 
 @Component({
   selector: 'ask',
@@ -12,7 +13,10 @@ export class AskComponent {
   questionText: any = '';
   //questionText: any = 'test question 00 - ' + Date.now();
 
-  constructor(private firebaseStore: FirebaseStoreProvider, public alertCtrl: AlertController) {
+  constructor(
+    private firebaseStore: FirebaseStoreProvider,
+    private utilService: UtilProvider,
+    public alertCtrl: AlertController) {
     //console.log('Hello AskComponent Component');
   }
 
@@ -35,24 +39,15 @@ export class AskComponent {
     self.submitting = true;
     this.firebaseStore.submitQuestion(this.questionText)
       .then(() => {
+
         self.submitting = false;
         self.questionText = '';
-
-        this.alertCtrl.create({
-          title: 'Successful !',
-          subTitle: 'Your question has been submitted successfully.',
-          buttons: ['OK']
-        }).present();
-
+        this.utilService.showToast('Question submitted successfully !');
       })
       .catch(error => {
-        self.submitting = false;
 
-        this.alertCtrl.create({
-          title: 'Error',
-          subTitle: error,
-          buttons: ['OK']
-        }).present();
+        self.submitting = false;
+        this.utilService.showToast(error, true);
       });
 
   }

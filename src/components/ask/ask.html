@@ -8,6 +8,7 @@
     <textarea class="text-box" maxlength="300"
               name="questionText"
               placeholder="Enter your question here..."
+              [disabled]="submitting"
               [(ngModel)]="questionText"></textarea>
 
     <button ion-button full color="secondary"

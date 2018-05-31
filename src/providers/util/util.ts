@@ -200,15 +200,22 @@ export class UtilProvider {
       document.getSelection().addRange(selected);   // Restore the original selection
     }
 
-    // announce the copy task completion.
-    this.toastCtrl.create({
-      message: alertMessage || 'Content Copied!',
-      duration: 1500,
-      cssClass: 'text-center',
-      position: 'bottom'
-    }).present();
+    // alert the copy task completion via toaster.
+    this.showToast(alertMessage || 'Content Copied!');
 
   };
+
+  // shows a black skinny toaster at bottom with the given message.
+  showToast(alertMessage, closeButton?: boolean) {
+
+    this.toastCtrl.create({
+      message: alertMessage,
+      duration: 1500,
+      cssClass: 'text-center',
+      closeButton: closeButton,
+      position: 'bottom'
+    }).present();
+  }
 
   // confirm modal for remove question, or answer.
   confirmRemove() {
