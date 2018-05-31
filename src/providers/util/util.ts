@@ -212,7 +212,7 @@ export class UtilProvider {
       message: alertMessage,
       duration: 1500,
       cssClass: 'text-center',
-      closeButton: closeButton,
+      showCloseButton: closeButton,
       position: 'bottom'
     }).present();
   }
