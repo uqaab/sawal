@@ -1,5 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { AlertController, LoadingController } from 'ionic-angular';
+import { NavParams } from 'ionic-angular';
 
 import * as moment from 'moment';
 
@@ -25,6 +26,7 @@ export class QueriesComponent implements OnDestroy {
   constructor(
     private firebaseStore: FirebaseStoreProvider,
     private utilService: UtilProvider,
+    public navParams: NavParams,
     public alertCtrl: AlertController,
     public loadingCtrl: LoadingController
   ) {
@@ -33,6 +35,7 @@ export class QueriesComponent implements OnDestroy {
     this.fetchApprovedQuestions();
 
     this.userId = this.utilService.userId;
+    this.isAdmin = navParams.data.isAdmin;
 
     // DEV only - render admin view
     //this.isAdmin = true;
