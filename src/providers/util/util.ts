@@ -53,8 +53,11 @@ export class UtilProvider {
 
   // DEV only - returns test device-id for development purpose
   private getTestUserId: () => Promise<string> = () => {
+    const testUserId = 'test-device-id';
+    //const testUserId = 'user-x-id';
+    //const testUserId = 'user-admin-id';
 
-    return Promise.resolve('test-device-id')
+    return Promise.resolve(testUserId)
       .then((userId: string) => {
         // we can do any common manipulation with the test device id here.
         return userId;
