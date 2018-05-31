@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { NavController, AlertController } from 'ionic-angular';
 
-import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
 import { ChannelPage } from '../channel/channel';
+
+import { FirebaseStoreProvider } from '../../providers/firebase-store/firebase-store';
+import { UtilProvider } from '../../providers/util/util';
 
 interface IChannelData{
   accessType?: string;
@@ -22,31 +24,42 @@ export class HomePage {
   registering: boolean = false;
   joining: boolean = false;
 
-  constructor(private navCtrl: NavController, private firebaseStore: FirebaseStoreProvider, private alertCtrl: AlertController) {
+  constructor(
+    private navCtrl: NavController,
+    private utilService: UtilProvider,
+    private firebaseStore: FirebaseStoreProvider,
+    private alertCtrl: AlertController) {
+
     this.connect();
   }
 
   // connects to firebase to validate the device against existing users.
   connect() {
-    const self = this;
+
     this.fetching = true;
-    this.firebaseStore.getDeviceId()
+    //console.log('HomePage - getUserId called');
+    this.utilService.getUserId()
       .then(uuid => {
 
-        self.firebaseStore.getUserProfile(uuid)
+        //console.log('HomePage - getUserId resolved');
+
+        this.firebaseStore.getUserProfile(uuid)
           .then((userProfile: any) => {
-            self.fetching = false;
+            this.fetching = false;
 
             // if new user.
             if (userProfile === null) {
               //console.log('new user');
+
               // if device has been registered previously
             } else {
-              self.userName = userProfile.name;
+
+              this.userName = userProfile.name;
               //console.log('existing user', self.userName);
             }
           })
           .catch(error => {
+            console.log('HomePage connect: error ', error);
 
             this.alertCtrl.create({
               title: 'Error',

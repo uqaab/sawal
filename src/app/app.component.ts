@@ -7,6 +7,7 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { HomePage } from '../pages/home/home';
 import { AboutUsPage } from '../pages/about-us/about-us';
 
+import { UtilProvider } from '../providers/util/util';
 import { FirebaseStoreProvider } from '../providers/firebase-store/firebase-store';
 
 @Component({
@@ -23,6 +24,7 @@ export class MyApp {
     public platform: Platform,
     public statusBar: StatusBar,
     public splashScreen: SplashScreen,
+    private utilService: UtilProvider,
     private firebaseStore: FirebaseStoreProvider
   ) {
     this.initializeApp();
@@ -35,7 +37,11 @@ export class MyApp {
   }
 
   initializeApp() {
-    this.platform.ready().then(() => this.onPlatformReady() );
+
+    // init our app firebase store
+    this.firebaseStore.init();
+
+    this.utilService.onPlatformReady().then(() => this.onPlatformReady());
   }
 
   // Okay, so the platform is ready and our plugins are available.
@@ -56,9 +62,6 @@ export class MyApp {
     this.splashScreen.hide();
 
     /* plugins stuff ends */
-
-    // init our app firebase store
-    this.firebaseStore.init();
   }
 
   openPage(page) {

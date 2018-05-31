@@ -19,18 +19,20 @@ export class QueriesComponent implements OnDestroy {
   questions = [];
   unSubscribeQuestionsList: Function;
   dispatchers: any = {};
-  userID: string;
+  userId: string;
   isAdmin: boolean = false;
 
-  constructor( private firebaseStore: FirebaseStoreProvider,
-               private utilService: UtilProvider,
-               public alertCtrl: AlertController,
-               public loadingCtrl: LoadingController
+  constructor(
+    private firebaseStore: FirebaseStoreProvider,
+    private utilService: UtilProvider,
+    public alertCtrl: AlertController,
+    public loadingCtrl: LoadingController
   ) {
+
     this.checkApprovedQuestionsList();
     this.fetchApprovedQuestions();
 
-    this.userID = this.firebaseStore.deviceId;
+    this.userId = this.utilService.userId;
 
     // DEV only - render admin view
     //this.isAdmin = true;
@@ -111,7 +113,7 @@ export class QueriesComponent implements OnDestroy {
     question.votes.push(vote);
 
     // check if this vote is by the user himself
-    if (vote.votedBy === this.firebaseStore.deviceId) {
+    if (vote.votedBy === this.userId) {
       this.votedQuestions[question.questionId] = true;
     }
   }
@@ -141,7 +143,7 @@ export class QueriesComponent implements OnDestroy {
     question.votes.splice(voteIndex, 1);
 
     // check if the vote was by the user himself
-    if (voteId === this.firebaseStore.deviceId) {
+    if (voteId === this.userId) {
       this.votedQuestions[question.questionId] = false;
     }
   }
@@ -421,7 +423,7 @@ export class QueriesComponent implements OnDestroy {
 
   // copies the comment text to user clipboard / memory
   copyComment(comment) {
-    this.utilService.copyToClipboard(comment.text);
+    this.utilService.copyToClipboard(comment.text, 'Reply content copied !');
   }
 
   // copies the comment text to user clipboard / memory
@@ -436,7 +438,8 @@ export class QueriesComponent implements OnDestroy {
       text += comment.text;
     });
 
-    this.utilService.copyToClipboard(text);
+    const alertMessage = `Question ${question.comments.length ? 'with replies' : 'content'} copied !`;
+    this.utilService.copyToClipboard(text, alertMessage);
   }
 
   // to be invoked when view is about to be destroyed.

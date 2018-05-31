@@ -1,12 +1,9 @@
-declare var window;
+//declare var window;
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { AlertController } from 'ionic-angular';
-
-import { Keychain } from '@ionic-native/keychain';
-//import { Device } from '@ionic-native/device';
 
 import * as firebase from 'firebase';
 
@@ -34,13 +31,10 @@ export class FirebaseStoreProvider {
   refs: IRefs = {};
   firebaseConfig: FirebaseConfig;
   activeChannelId: string = '123123123';
-  deviceId: string;
-  getDeviceIdPromise: Promise<string>;
+  userId: string;
   constructor(
     public http: HttpClient,
-    public util: UtilProvider,
-    //private device: Device,
-    private keychain: Keychain,
+    public utilService: UtilProvider,
     public alertCtrl: AlertController
   ) {
     this.firebaseConfig = new FirebaseConfig();
@@ -58,30 +52,15 @@ export class FirebaseStoreProvider {
     return question;
   };
 
-  public encryptString: (str:string) => string = (str) => {
-    const mapping = {
-      '-': 'a',
-      '0': 'b',
-      '1': 'c',
-      '2': 'l',
-      '3': 'm',
-      '4': 'n',
-      '5': 'p',
-      '6': 'q',
-      '7': 'r',
-      '8': 'y',
-      '9': 'z'
-    };
-
-    return str.split('').map(char => mapping[char] || char).join('');
-  };
-
   // main initialization logic - one-time only
-  public init () {
+  public init() {
+    //console.log('FirebaseStoreProvider - getUserId called');
 
     // get device id to consider it as unique userID
-    this.getDeviceId()
-      .then((deviceId: string) => {
+    //this.utilService.getUserId()
+    //  .then((userId: string) => {
+
+        //console.log('FirebaseStoreProvider - getUserId resolved');
 
         // this.alertCtrl.create({
         //   title: 'Device ID',
@@ -95,93 +74,19 @@ export class FirebaseStoreProvider {
         // build the required References
         this.buildRefs();
 
-        return deviceId;
-      })
-      .catch((error: any) => {
-        console.log('device-id - failed initializing app - could not read device-id', error);
+        //console.log('FirebaseStoreProvider - firebase instantiated');
+        //return userId;
+      //})
+      //.catch((error: any) => {
+      //  console.log('device-id - failed initializing app - could not retrieve the device-id', error);
 
         // inform user about the reason.
-         this.alertCtrl.create({
-           title: 'Error',
-           subTitle: 'Could not read device-id. Try re-open or re-install the app and provide all the requested accesses.',
-           buttons: ['OK']
-         }).present();
-      });
-  }
-
-  // DEV only - returns test device-id for development purpose
-  private getTestDeviceId: () => Promise<string> = () => {
-    return Promise.resolve('test-device-id')
-      .then((deviceId: string) => {
-        return this.deviceId = deviceId;
-      });
-  };
-
-  // get phone's actual device id
-  private getPhoneDeviceId: () => Promise<string> = () => {
-
-    // check if already generated the deviceId
-    if (this.getDeviceIdPromise) {
-      return this.getDeviceIdPromise;
-    }
-
-    console.log('this.device', window.device);
-
-    this.getDeviceIdPromise = new Promise((resolve, reject) => {
-
-      // if it is an android - cordova-plugin-device takes care of it.
-      if (window.device) {
-        const uuid = window.device.uuid;
-        console.log('getPhoneDeviceId: android: uuid', uuid);
-
-        let userID = uuid.substring(uuid.length - 16 - 1); // 16 IMEI plus 1 for "-"
-        userID = this.encryptString(userID);
-
-        console.log('getPhoneDeviceId - userID', userID);
-        resolve(userID);
-        return;
-      }
-
-      console.log('getPhoneDeviceId: ios');
-
-      // otherwise its ios - custom game
-
-      const keyChainFieldName = 'SAWAL_USER_ID';
-      this.keychain.get(keyChainFieldName).then((uuid: string) => {
-
-        // check if already previously stored custom UUID
-        if (uuid) {
-          console.log('getPhoneDeviceId: ios: uuid', uuid);
-          resolve(uuid);
-          return;
-        }
-
-        // otherwise generate a new UUID and store it inside keychain.x
-        const newCustomUUID: string = this.util.generateRandomKey();
-        console.log('getPhoneDeviceId: ios: writing uuid', newCustomUUID);
-        this.keychain.set(keyChainFieldName, newCustomUUID, false)
-          .then(() => {
-
-            console.log('getPhoneDeviceId: ios: writing success uuid', newCustomUUID);
-            resolve(newCustomUUID);
-          }).catch((err) => {
-
-          console.log('getPhoneDeviceId: ios: writing failed uuid', newCustomUUID, err);
-          reject('Failed in writing custom UUID to keychain.');
-        });
-
-      });
-    });
-
-    return this.getDeviceIdPromise
-      .then(uuid => {
-        return this.deviceId = this.encryptString(uuid);
-      });
-  };
-
-  // returns the device id once retrieved already
-  getDeviceId() : Promise<string> {
-    return location.hostname === 'localhost' ? this.getTestDeviceId() : this.getPhoneDeviceId();
+        // this.alertCtrl.create({
+        //   title: 'Error',
+        //   subTitle: 'Could not read device-id. Try re-open or re-install the app and provide all the requested accesses.',
+        //   buttons: ['OK']
+        // }).present();
+      //});
   }
 
   // registers the user against the unique device-id
@@ -194,7 +99,7 @@ export class FirebaseStoreProvider {
       let question = {
         approvedBy: null,
         approvedOn: null,
-        askedBy: this.deviceId,
+        askedBy: this.utilService.userId,
         askedOn: Date.now(),
         comments: {},
         text: questionText,
@@ -233,7 +138,7 @@ export class FirebaseStoreProvider {
     return new Promise((resolve, reject) => {
       let comment = {
         text: commentText,
-        commentedBy: this.deviceId,
+        commentedBy: this.utilService.userId,
         commentedOn: Date.now(),
       };
 
@@ -445,7 +350,7 @@ export class FirebaseStoreProvider {
         }
 
         // set approvedBy info.
-        this.refs.questionsRef.child(questionId).child('approvedBy').set(this.deviceId, error => {
+        this.refs.questionsRef.child(questionId).child('approvedBy').set(this.utilService.userId, error => {
 
           if (error) {
             console.log('approvePendingQuestion: approvedBy error - ', error);
@@ -495,7 +400,7 @@ export class FirebaseStoreProvider {
 
     return new Promise((resolve, reject) => {
 
-      this.refs.questionsRef.child(questionId).child('votes').child(this.deviceId).set(Date.now(), error => {
+      this.refs.questionsRef.child(questionId).child('votes').child(this.utilService.userId).set(Date.now(), error => {
 
         if (error) {
           console.log('submitQuestionVote: error - ', error);
@@ -512,7 +417,7 @@ export class FirebaseStoreProvider {
 
     // remove the entry from question votes list
     return this.refs.questionsRef.child(questionId)
-      .child('votes').child(this.deviceId)
+      .child('votes').child(this.utilService.userId)
       .remove();
   }
 
@@ -654,7 +559,7 @@ export class FirebaseStoreProvider {
     });
   }
 
-  // returns the uuid - wait for the deviceId promise to be resolved first
+  // returns the uuid - wait for the userId promise to be resolved first
   getUserProfile(uuid) {
 
     return new Promise((resolve, reject) => {
@@ -676,7 +581,7 @@ export class FirebaseStoreProvider {
         since: Date.now()
       };
 
-      this.refs.usersRef.child(this.deviceId).set(profile, error => {
+      this.refs.usersRef.child(this.utilService.userId).set(profile, error => {
         if (error) {
           console.log('registerUser: error - ', error);
           reject('User registration failed.');

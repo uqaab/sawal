@@ -21,7 +21,7 @@
       </ion-col>
       <ion-col col-2>
         <button ion-button small clear color="danger"
-                *ngIf="isAdmin || question.askedBy === userID"
+                *ngIf="isAdmin || question.askedBy === userId"
                 (click)="removeQuestion(question.questionId)">
           <ion-icon name="close"></ion-icon>
         </button>
@@ -82,7 +82,7 @@
           </ion-col>
           <ion-col col-2>
             <button ion-button small clear color="danger"
-                    *ngIf="isAdmin || comment.commentedBy === userID"
+                    *ngIf="isAdmin || comment.commentedBy === userId"
                     (click)="removeComment(question.questionId, comment.commentId)">
               <ion-icon name="close"></ion-icon>
             </button>
@@ -113,7 +113,7 @@
     </div>
 
     <!-- for Admins and askedBy user himself only -->
-    <ion-card *ngIf="(isAdmin || question.askedBy === userID) && !question.showCommentBox">
+    <ion-card *ngIf="(isAdmin || question.askedBy === userId) && !question.showCommentBox">
       <button ion-button full color="secondary" (click)="question.showCommentBox = true;">Reply</button>
     </ion-card>
     <!-- TODO refactor to a separate component -->
