@@ -339,18 +339,6 @@ export class QueriesComponent implements OnDestroy {
   // submits a new comment against the given question.
   submitComment(question) {
 
-    // payload validation
-    if (!question.newCommentText || question.newCommentText.length < 10) {
-
-      this.alertCtrl.create({
-        title: 'Error',
-        subTitle: 'Answer text can be minimum 10 characters and maximum 5000 characters.',
-        buttons: ['Try Again']
-      }).present();
-
-      return;
-    }
-
     question.commenting = true;
     this.firebaseStore.submitComment(question.newCommentText, question.questionId)
       .then(() => {
@@ -431,13 +419,13 @@ export class QueriesComponent implements OnDestroy {
 
   // copies the comment text to user clipboard / memory
   copyQuestion(question) {
-    let text = question.askedByName + ':\n';
+    let text = (question.askedByName || '...') + ' :\n';
     text += question.text;
 
     // attach each comment text
     question.comments.forEach(comment => {
       text += '\n-\n';
-      text += comment.commentedByName + ':\n';
+      text += (comment.commentedByName || '...') + ' :\n';
       text += comment.text;
     });
 
