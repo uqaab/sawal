@@ -75,12 +75,22 @@ export class HomePage {
 
     $event.preventDefault();
 
-    // validate channel code
+    // validate missing user name
     if (!this.newUserName) {
 
       return this.alertCtrl.create({
         title: 'Error',
         subTitle: 'Please enter your name.',
+        buttons: ['OK']
+      }).present();
+    }
+
+    // validate user name length
+    if (this.newUserName.length < 3) {
+
+      return this.alertCtrl.create({
+        title: 'Error',
+        subTitle: 'Name should contain at least 3 characters.',
         buttons: ['OK']
       }).present();
     }
